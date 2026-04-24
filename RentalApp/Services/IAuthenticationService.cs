@@ -10,5 +10,8 @@ namespace RentalApp.Services
         Task<bool> RegisterAsync(string firstName, string lastName, string email, string password);
         Task<User?> GetProfileAsync();
         Task LogoutAsync();
+
+        User? CurrentUser { get; }
+
     }
 }

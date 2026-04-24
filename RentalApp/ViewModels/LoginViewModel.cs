@@ -51,7 +51,7 @@ namespace RentalApp.ViewModels
 
                 if (success)
                 {
-                    await _navigation.NavigateToAsync("MainPage");
+                    await _navigation.NavigateToAsync("//main");
                 }
                 else
                 {
@@ -71,7 +71,7 @@ namespace RentalApp.ViewModels
         [RelayCommand]
         private async Task NavigateToRegisterAsync()
         {
-            await _navigation.NavigateToAsync("RegisterPage");
+            await _navigation.NavigateToAsync("register");
         }
     }
 }

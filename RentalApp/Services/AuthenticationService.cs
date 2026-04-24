@@ -8,6 +8,8 @@ namespace RentalApp.Services
 
         public string? Token { get; private set; }
 
+        public User? CurrentUser { get; private set; }
+
         public AuthenticationService(IApiService api)
         {
             _api = api;
@@ -28,6 +30,9 @@ namespace RentalApp.Services
 
             Token = response.Token;
             _api.SetToken(Token);
+
+            // Fetch and store the user profile
+            CurrentUser = await GetProfileAsync();
 
             return true;
         }
@@ -55,6 +60,7 @@ namespace RentalApp.Services
         public Task LogoutAsync()
         {
             Token = null;
+            CurrentUser = null;
             _api.SetToken(null);
             return Task.CompletedTask;
         }
