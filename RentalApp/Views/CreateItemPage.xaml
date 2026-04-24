@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="RentalApp.Views.CreateItemPage"
+    Title="Create Item">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <!-- Error Banner -->
+            <Border 
+                BackgroundColor="#ffcccc"
+                Padding="10"
+                IsVisible="{Binding HasError}">
+                <Label 
+                    Text="{Binding ErrorMessage}" 
+                    TextColor="Black" 
+                    FontAttributes="Bold" />
+            </Border>
+
+            <!-- Title -->
+            <Label Text="Item Title" FontAttributes="Bold" />
+            <Border 
+                Stroke="#dddddd"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 8">
+                <Entry 
+                    Placeholder="Enter item title"
+                    Text="{Binding TitleText}"
+                    Margin="10" />
+            </Border>
+
+            <!-- Description -->
+            <Label Text="Description" FontAttributes="Bold" />
+            <Border 
+                Stroke="#dddddd"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 8">
+                <Editor 
+                    Placeholder="Describe the item"
+                    AutoSize="TextChanges"
+                    Text="{Binding Description}"
+                    Margin="10" />
+            </Border>
+
+            <!-- Category -->
+            <Label Text="Category" FontAttributes="Bold" />
+            <Border 
+                Stroke="#dddddd"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 8">
+                <Picker 
+                    Title="Select Category"
+                    ItemsSource="{Binding Categories}"
+                    ItemDisplayBinding="{Binding Name}"
+                    SelectedItem="{Binding SelectedCategory}"
+                    Margin="10" />
+            </Border>
+
+            <!-- Daily Rate -->
+            <Label Text="Daily Rate (£)" FontAttributes="Bold" />
+            <Border 
+                Stroke="#dddddd"
+                StrokeThickness="1"
+                BackgroundColor="White"
+                StrokeShape="RoundRectangle 8">
+                <Entry 
+                    Placeholder="0.00"
+                    Keyboard="Numeric"
+                    Text="{Binding DailyRate}"
+                    Margin="10" />
+            </Border>
+
+            <!-- Create Button -->
+            <Button 
+                Text="Create Item"
+                Command="{Binding CreateItemCommand}"
+                BackgroundColor="#007aff"
+                TextColor="White"
+                CornerRadius="8"
+                HeightRequest="50"
+                Margin="0,20,0,0" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator 
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#007aff" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="RentalApp.Views.ItemDetailsPage"
+    Title="Item Details">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Error Banner -->
+            <Border 
+                BackgroundColor="#ffcccc"
+                Padding="10"
+                IsVisible="{Binding HasError}">
+                <Label 
+                    Text="{Binding ErrorMessage}" 
+                    TextColor="Black" 
+                    FontAttributes="Bold" />
+            </Border>
+
+            <!-- Item Card -->
+            <Border 
+                Padding="20"
+                BackgroundColor="White"
+                Stroke="#dddddd"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 16">
+
+                <Border.Shadow>
+                    <Shadow Brush="#00000022" Offset="0,4" Radius="10" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="12">
+
+                    <!-- Title -->
+                    <Label 
+                        Text="{Binding Item.Title}"
+                        FontSize="26"
+                        FontAttributes="Bold"
+                        TextColor="#222" />
+
+                    <!-- Category -->
+                    <Label 
+                        Text="{Binding Item.Category}"
+                        FontSize="18"
+                        TextColor="#666" />
+
+                    <!-- Daily Rate -->
+                    <Label 
+                        Text="{Binding Item.DailyRate, StringFormat='£{0:F2} per day'}"
+                        FontSize="18"
+                        TextColor="#444" />
+
+                    <!-- Description -->
+                    <Label 
+                        Text="Description"
+                        FontSize="20"
+                        FontAttributes="Bold"
+                        Margin="0,10,0,0" />
+
+                    <Label 
+                        Text="{Binding Item.Description}"
+                        FontSize="16"
+                        TextColor="#333" />
+
+                    <!-- Availability -->
+                    <Label 
+                        Text="{Binding AvailabilityText}"
+                        FontSize="16"
+                        TextColor="{Binding AvailabilityColor}" />
+
+                    <!-- Created Date -->
+                    <Label 
+                        Text="{Binding Item.CreatedAt, StringFormat='Listed on {0:dd MMM yyyy}'}"
+                        FontSize="14"
+                        TextColor="#777" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Request Rental Button -->
+            <Button 
+                Text="Request Rental"
+                Command="{Binding RequestRentalCommand}"
+                BackgroundColor="#007aff"
+                TextColor="White"
+                CornerRadius="8"
+                HeightRequest="50"
+                Margin="0,10,0,0" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator 
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#007aff" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

@@ -5,15 +5,16 @@
              xmlns:vm="clr-namespace:RentalApp.ViewModels"
              Title="{Binding Title}">
 
-    <ContentPage.BindingContext>
-        <vm:TempViewModel />
-    </ContentPage.BindingContext>
 
-    <VerticalStackLayout>
+    <VerticalStackLayout Padding="20" Spacing="20"
+                         VerticalOptions="Center"
+                         HorizontalOptions="Center">
+
         <Label 
             Text="{Binding Message}"
             FontSize="24"
-            VerticalOptions="Center" 
-            HorizontalOptions="Center" />
+            HorizontalOptions="Center"
+            VerticalOptions="Center" />
+
     </VerticalStackLayout>
 </ContentPage>

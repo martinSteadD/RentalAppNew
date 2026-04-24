@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using RentalApp.Database.Models;
+
 
 namespace RentalApp.Services
 {
@@ -76,5 +78,48 @@ namespace RentalApp.Services
             var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
         }
+
+        public async Task<IEnumerable<Item>> GetItemsAsync()
+        {
+            var response = await _httpClient.GetAsync("items");
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Failed to load items");
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<IEnumerable<Item>>(json, _jsonOptions)
+                ?? Enumerable.Empty<Item>();
+        }
+
+        public async Task<IEnumerable<Category>> GetCategoriesAsync()
+        {
+            var response = await _httpClient.GetAsync("categories");
+
+            if (!response.IsSuccessStatusCode)
+                throw new Exception("Failed to load categories");
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<IEnumerable<Category>>(json, _jsonOptions)
+                ?? Enumerable.Empty<Category>();
+        }
+
+        public async Task<Item?> CreateItemAsync(Item item)
+        {
+            var json = JsonSerializer.Serialize(item, _jsonOptions);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var response = await _httpClient.PostAsync("items", content);
+
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+
+            return JsonSerializer.Deserialize<Item>(responseJson, _jsonOptions);
+        }
+
+
+
     }
 }

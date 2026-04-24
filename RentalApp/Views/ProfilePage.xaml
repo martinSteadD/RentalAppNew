@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
+    x:Class="RentalApp.Views.ProfilePage"
+    Title="My Profile">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="16">
+
+            <!-- Error Banner -->
+            <Border 
+                BackgroundColor="#ffcccc"
+                Padding="10"
+                IsVisible="{Binding HasError}">
+                <Label 
+                    Text="{Binding ErrorMessage}" 
+                    TextColor="Black" 
+                    FontAttributes="Bold" />
+            </Border>
+
+            <!-- Profile Card -->
+            <Border 
+                Padding="20"
+                BackgroundColor="White"
+                Stroke="#dddddd"
+                StrokeThickness="1"
+                StrokeShape="RoundRectangle 16">
+
+                <Border.Shadow>
+                    <Shadow Brush="#00000022" Offset="0,4" Radius="10" />
+                </Border.Shadow>
+
+                <VerticalStackLayout Spacing="10">
+
+                    <Label 
+                        Text="{Binding User.firstName}"
+                        FontSize="26"
+                        FontAttributes="Bold"
+                        TextColor="#222" />
+
+                    <Label 
+                        Text="{Binding User.lastName}"
+                        FontSize="22"
+                        TextColor="#444" />
+
+                    <Label 
+                        Text="{Binding User.email}"
+                        FontSize="18"
+                        TextColor="#666" />
+
+                    <Label 
+                        Text="{Binding User.createdAt, StringFormat='Member since {0:dd MMM yyyy}'}"
+                        FontSize="14"
+                        TextColor="#777" />
+
+                    <Label 
+                        Text="{Binding User.averageRating, StringFormat='Rating: {0:F1} ★'}"
+                        FontSize="18"
+                        TextColor="#007aff"
+                        FontAttributes="Bold" />
+
+                    <Label 
+                        Text="{Binding User.itemsListed, StringFormat='Items Listed: {0}'}"
+                        FontSize="16"
+                        TextColor="#444" />
+
+                    <Label 
+                        Text="{Binding User.rentalsCompleted, StringFormat='Rentals Completed: {0}'}"
+                        FontSize="16"
+                        TextColor="#444" />
+
+                </VerticalStackLayout>
+
+            </Border>
+
+            <!-- Logout Button -->
+            <Button 
+                Text="Logout"
+                Command="{Binding LogoutCommand}"
+                BackgroundColor="#ff3b30"
+                TextColor="White"
+                CornerRadius="8"
+                HeightRequest="50"
+                Margin="0,20,0,0" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator 
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#007aff" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

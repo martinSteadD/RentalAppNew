@@ -5,10 +5,6 @@
              xmlns:vm="clr-namespace:RentalApp.ViewModels"
              Title="{Binding Title}">
 
-    <ContentPage.BindingContext>
-        <vm:RegisterViewModel />
-    </ContentPage.BindingContext>
-
     <ScrollView>
         <Grid Padding="30" RowSpacing="20">
             <Grid.RowDefinitions>
@@ -138,8 +134,7 @@
                     HeightRequest="50"
                     CornerRadius="8"
                     FontSize="16"
-                    FontAttributes="Bold"
-                    IsEnabled="true" />
+                    FontAttributes="Bold" />
 
             <!-- Footer -->
             <StackLayout Grid.Row="9" Spacing="10" Margin="0,20,0,0">
@@ -153,6 +148,8 @@
                         TextColor="{AppThemeBinding Light={StaticResource Primary}, Dark={StaticResource PrimaryDark}}"
                         FontSize="14" />
             </StackLayout>
+
         </Grid>
     </ScrollView>
+
 </ContentPage>

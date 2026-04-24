@@ -2,9 +2,9 @@ using RentalApp.ViewModels;
 
 namespace RentalApp.Views;
 
-public partial class AboutPage : ContentPage
+public partial class CreateItemPage : ContentPage
 {
-	    public AboutPage(AboutViewModel vm)
+    public CreateItemPage(CreateItemViewModel vm)
     {
         InitializeComponent();
         BindingContext = vm;

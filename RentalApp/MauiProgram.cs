@@ -20,15 +20,12 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
-        builder.Services.AddDbContext<AppDbContext>();
-
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<INavigationService, NavigationService>();
         // Coursework API services
         builder.Services.AddSingleton<IApiService, ApiService>();
         builder.Services.AddSingleton<IRentalService, RentalService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
-
 
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<AppShell>();
@@ -40,12 +37,27 @@ public static class MauiProgram
         builder.Services.AddTransient<LoginPage>();
         builder.Services.AddSingleton<RegisterViewModel>();
         builder.Services.AddTransient<RegisterPage>();
-        builder.Services.AddTransient<UserListViewModel>();
-        builder.Services.AddTransient<UserListPage>();
-        builder.Services.AddTransient<UserDetailPage>();
-        builder.Services.AddTransient<UserDetailViewModel>();
         builder.Services.AddSingleton<TempViewModel>();
         builder.Services.AddTransient<TempPage>();
+        builder.Services.AddTransient<ItemDetailsViewModel>();
+        builder.Services.AddTransient<ItemDetailsPage>();
+        builder.Services.AddTransient<BrowseItemsViewModel>();
+        builder.Services.AddTransient<BrowseItemsPage>();
+        builder.Services.AddTransient<CreateItemViewModel>();
+        builder.Services.AddTransient<CreateItemPage>();
+        builder.Services.AddTransient<MyRentalsViewModel>();
+        builder.Services.AddTransient<MyRentalsPage>();
+        builder.Services.AddTransient<ProfileViewModel>();
+        builder.Services.AddTransient<ProfilePage>();
+        builder.Services.AddSingleton<UserListViewModel>();
+        builder.Services.AddTransient<UserListPage>();
+        builder.Services.AddSingleton<AboutViewModel>();
+        builder.Services.AddTransient<AboutPage>();
+
+
+
+
+
 
 #if DEBUG
         builder.Logging.AddDebug();

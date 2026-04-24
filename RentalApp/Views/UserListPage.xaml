@@ -4,6 +4,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
              x:DataType="viewmodels:UserListViewModel"
+             x:Name="PageRoot"
              Title="User Management">
 
     <ContentPage.ToolbarItems>
@@ -15,7 +16,8 @@
                      IconImageSource="add_user.png" />
     </ContentPage.ToolbarItems>
 
-    <Grid>
+    <Grid RowSpacing="10">
+
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
@@ -52,12 +54,13 @@
         <RefreshView Grid.Row="2"
                      IsRefreshing="{Binding IsRefreshing}"
                      Command="{Binding RefreshCommand}">
-            
+
             <CollectionView ItemsSource="{Binding FilteredUsers}"
-                           SelectionMode="None">
-                
+                            SelectionMode="None"
+                            Margin="10">
+
                 <CollectionView.EmptyView>
-                    <StackLayout HorizontalOptions="Center" VerticalOptions="Center">
+                    <VerticalStackLayout HorizontalOptions="Center" VerticalOptions="Center">
                         <Label Text="No users found"
                                FontSize="18"
                                TextColor="Gray"
@@ -67,83 +70,90 @@
                                TextColor="Gray"
                                HorizontalOptions="Center"
                                Margin="0,5,0,0" />
-                    </StackLayout>
+                    </VerticalStackLayout>
                 </CollectionView.EmptyView>
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate x:DataType="viewmodels:UserListItem">
-                        <Grid Padding="15,10">
-                            <Grid.GestureRecognizers>
-                                <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:UserListViewModel}}, Path=UserSelectedCommand}"
-                                                     CommandParameter="{Binding .}" />
-                            </Grid.GestureRecognizers>
 
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="Auto" />
-                                <RowDefinition Height="1" />
-                            </Grid.RowDefinitions>
+                        <Border Stroke="#dddddd"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 12"
+                                BackgroundColor="White"
+                                Padding="15"
+                                Margin="0,0,0,10">
 
-                            <!-- User Name -->
-                            <Label Grid.Row="0"
-                                   Text="{Binding FullName}"
-                                   FontSize="18"
-                                   FontAttributes="Bold"
-                                   TextColor="Black" />
+                            <Border.Shadow>
+                                <Shadow Brush="#00000022" Offset="0,4" Radius="10" />
+                            </Border.Shadow>
 
-                            <!-- Email -->
-                            <Label Grid.Row="1"
-                                   Text="{Binding Email}"
-                                   FontSize="14"
-                                   TextColor="Gray"
-                                   Margin="0,2,0,0" />
+                            <Grid>
+                                <Grid.GestureRecognizers>
+                                    <TapGestureRecognizer Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:UserListViewModel}}, Path=UserSelectedCommand}"
+                                                          CommandParameter="{Binding .}" />
+                                </Grid.GestureRecognizers>
 
-                            <!-- Roles and Created Date -->
-                            <Grid Grid.Row="2" Margin="0,5,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*" />
-                                    <ColumnDefinition Width="Auto" />
-                                </Grid.ColumnDefinitions>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                    <RowDefinition Height="Auto" />
+                                </Grid.RowDefinitions>
 
-                                <StackLayout Grid.Column="0" Orientation="Horizontal">
-                                    <Label Text="Roles:"
-                                           FontSize="12"
-                                           FontAttributes="Bold"
-                                           TextColor="DodgerBlue"
+                                <!-- User Name -->
+                                <Label Grid.Row="0"
+                                       Text="{Binding FullName}"
+                                       FontSize="18"
+                                       FontAttributes="Bold"
+                                       TextColor="#222" />
+
+                                <!-- Email -->
+                                <Label Grid.Row="1"
+                                       Text="{Binding Email}"
+                                       FontSize="14"
+                                       TextColor="#666"
+                                       Margin="0,2,0,0" />
+
+                                <!-- Roles + Created Date -->
+                                <Grid Grid.Row="2" Margin="0,5,0,0">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*" />
+                                        <ColumnDefinition Width="Auto" />
+                                    </Grid.ColumnDefinitions>
+
+                                    <HorizontalStackLayout Grid.Column="0" Spacing="5">
+                                        <Label Text="Roles:"
+                                               FontSize="12"
+                                               FontAttributes="Bold"
+                                               TextColor="DodgerBlue" />
+                                        <Label Text="{Binding RolesDisplay}"
+                                               FontSize="12"
+                                               TextColor="DodgerBlue" />
+                                    </HorizontalStackLayout>
+
+                                    <Label Grid.Column="1"
+                                           Text="{Binding CreatedAt, StringFormat='{0:MMM dd, yyyy}'}"
+                                           FontSize="11"
+                                           TextColor="Gray"
                                            VerticalOptions="Center" />
-                                    <Label Text="{Binding RolesDisplay}"
-                                           FontSize="12"
-                                           TextColor="DodgerBlue"
-                                           VerticalOptions="Center"
-                                           Margin="5,0,0,0" />
-                                </StackLayout>
+                                </Grid>
 
-                                <Label Grid.Column="1"
-                                       Text="{Binding CreatedAt, StringFormat='{0:MMM dd, yyyy}'}"
-                                       FontSize="11"
-                                       TextColor="Gray"
-                                       VerticalOptions="Center" />
                             </Grid>
 
-                            <!-- Separator -->
-                            <BoxView Grid.Row="3"
-                                     BackgroundColor="LightGray"
-                                     HeightRequest="1"
-                                     Margin="0,10,0,0" />
-                        </Grid>
+                        </Border>
+
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
+
             </CollectionView>
         </RefreshView>
 
         <!-- Loading Indicator -->
         <ActivityIndicator Grid.Row="2"
-                          IsVisible="{Binding IsLoading}"
-                          IsRunning="{Binding IsLoading}"
-                          Color="DodgerBlue"
-                          VerticalOptions="Center"
-                          HorizontalOptions="Center" />
+                           IsVisible="{Binding IsLoading}"
+                           IsRunning="{Binding IsLoading}"
+                           Color="DodgerBlue"
+                           VerticalOptions="Center"
+                           HorizontalOptions="Center" />
     </Grid>
 
 </ContentPage>

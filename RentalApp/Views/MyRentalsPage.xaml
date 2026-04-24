@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
+    x:Class="RentalApp.Views.MyRentalsPage"
+    Title="My Rentals">
+
+    <!-- BindingContext is set in code-behind via DI -->
+
+    <Grid RowDefinitions="Auto, *">
+
+        <!-- Error Banner -->
+        <Border 
+            BackgroundColor="#ffcccc"
+            Padding="10"
+            IsVisible="{Binding HasError}">
+            <Label 
+                Text="{Binding ErrorMessage}" 
+                TextColor="Black" 
+                FontAttributes="Bold" />
+        </Border>
+
+        <!-- Rentals List wrapped in RefreshView -->
+        <RefreshView
+            Grid.Row="1"
+            IsRefreshing="{Binding IsBusy}"
+            Command="{Binding RefreshCommand}">
+
+            <CollectionView
+                ItemsSource="{Binding Rentals}"
+                SelectionMode="None">
+
+                <CollectionView.EmptyView>
+                    <VerticalStackLayout Padding="20" Spacing="10">
+                        <Label 
+                            Text="You have no rentals yet."
+                            FontSize="18"
+                            HorizontalOptions="Center" />
+                    </VerticalStackLayout>
+                </CollectionView.EmptyView>
+
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border 
+                            Margin="10"
+                            Padding="15"
+                            BackgroundColor="White"
+                            Stroke="#dddddd"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 12">
+
+                            <Border.Shadow>
+                                <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
+                            </Border.Shadow>
+
+                            <VerticalStackLayout Spacing="6">
+
+                                <Label 
+                                    Text="{Binding itemTitle}"
+                                    FontSize="18"
+                                    FontAttributes="Bold"
+                                    TextColor="#222" />
+
+                                <Label 
+                                    Text="{Binding startDate, StringFormat='From: {0:dd MMM yyyy}'}"
+                                    FontSize="14"
+                                    TextColor="#555" />
+
+                                <Label 
+                                    Text="{Binding endDate, StringFormat='To: {0:dd MMM yyyy}'}"
+                                    FontSize="14"
+                                    TextColor="#555" />
+
+                                <Label 
+                                    Text="{Binding status}"
+                                    FontSize="14"
+                                    TextColor="#007aff"
+                                    FontAttributes="Bold" />
+
+                            </VerticalStackLayout>
+
+                        </Border>
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+
+            </CollectionView>
+
+        </RefreshView>
+
+    </Grid>
+
+</ContentPage>

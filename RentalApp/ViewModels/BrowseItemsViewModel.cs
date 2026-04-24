@@ -8,7 +8,7 @@ namespace RentalApp.ViewModels;
 
 public partial class BrowseItemsViewModel : BaseViewModel
 {
-    private readonly IItemService _itemService;
+    private readonly IApiService _apiService;
     private readonly INavigationService _navigationService;
 
     public ObservableCollection<Item> Items { get; } = new();
@@ -16,9 +16,9 @@ public partial class BrowseItemsViewModel : BaseViewModel
     [ObservableProperty]
     private bool isRefreshing;
 
-    public BrowseItemsViewModel(IItemService itemService, INavigationService navigationService)
+    public BrowseItemsViewModel(IApiService apiService, INavigationService navigationService)
     {
-        _itemService = itemService;
+        _apiService = apiService;
         _navigationService = navigationService;
 
         Title = "Browse Items";
@@ -37,7 +37,7 @@ public partial class BrowseItemsViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var items = await _itemService.GetItemsAsync();
+            var items = await _apiService.GetItemsAsync();
 
             Items.Clear();
             foreach (var item in items)

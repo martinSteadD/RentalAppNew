@@ -8,10 +8,9 @@ namespace RentalApp.ViewModels;
 
 public partial class CreateItemViewModel : BaseViewModel
 {
-    private readonly IItemService _itemService;
-    private readonly ICategoryService _categoryService;
-    private readonly INavigationService _navigationService;
+    private readonly IApiService _apiService;
     private readonly IAuthenticationService _authService;
+    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private string titleText = string.Empty;
@@ -28,26 +27,24 @@ public partial class CreateItemViewModel : BaseViewModel
     private Category? selectedCategory;
 
     public CreateItemViewModel(
-        IItemService itemService,
-        ICategoryService categoryService,
+        IApiService apiService,
         IAuthenticationService authService,
         INavigationService navigationService)
     {
-        _itemService = itemService;
-        _categoryService = categoryService;
+        _apiService = apiService;
         _authService = authService;
         _navigationService = navigationService;
 
         Title = "Create Item";
 
-        LoadCategories();
+        _ = LoadCategoriesAsync();
     }
 
-    private async void LoadCategories()
+    private async Task LoadCategoriesAsync()
     {
         try
         {
-            var list = await _categoryService.GetCategoriesAsync();
+            var list = await _apiService.GetCategoriesAsync();
 
             Categories.Clear();
             foreach (var c in list)
@@ -92,7 +89,7 @@ public partial class CreateItemViewModel : BaseViewModel
                 CreatedAt = DateTime.UtcNow
             };
 
-            var result = await _itemService.CreateItemAsync(item);
+            var result = await _apiService.CreateItemAsync(item);
 
             if (result == null)
             {
