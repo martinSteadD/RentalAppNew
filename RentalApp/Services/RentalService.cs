@@ -21,14 +21,9 @@ namespace RentalApp.Services
             return await _api.GetAsync<List<Rental>>($"rentals/item/{itemId}");
         }
 
-        public async Task<Rental?> RequestRentalAsync(int itemId, DateOnly startDate, DateOnly endDate)
+        public async Task<Rental?> RequestRentalAsync(int itemId)
         {
-            var payload = new
-            {
-                itemId,
-                startDate = startDate.ToString("yyyy-MM-dd"),
-                endDate = endDate.ToString("yyyy-MM-dd")
-            };
+            var payload = new { itemId };
 
             return await _api.PostAsync<object, Rental>("rentals/request", payload);
         }

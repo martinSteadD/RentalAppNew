@@ -8,8 +8,7 @@ namespace RentalApp.Services
     {
         private readonly HttpClient _httpClient;
         private readonly JsonSerializerOptions _jsonOptions;
-
-        public string? AuthToken { get; private set; }
+        private string? _token;
 
         public ApiService()
         {
@@ -24,90 +23,58 @@ namespace RentalApp.Services
             };
         }
 
-        private void ApplyAuthHeader()
+        public void SetToken(string? token)
         {
-            if (!string.IsNullOrEmpty(AuthToken))
+            _token = token;
+        }
+
+        private void ApplyAuthHeader(HttpRequestMessage request)
+        {
+            if (!string.IsNullOrWhiteSpace(_token))
             {
-                _httpClient.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", AuthToken);
+                request.Headers.Authorization =
+                    new AuthenticationHeaderValue("Bearer", _token);
             }
         }
 
-        public async Task<T> GetAsync<T>(string endpoint)
+        public async Task<T?> GetAsync<T>(string endpoint)
         {
-            ApplyAuthHeader();
+            var request = new HttpRequestMessage(HttpMethod.Get, endpoint);
+            ApplyAuthHeader(request);
 
-            var response = await _httpClient.GetAsync(endpoint);
+            var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<T>(json, _jsonOptions)!;
+            return JsonSerializer.Deserialize<T>(json, _jsonOptions);
         }
 
-        public async Task<TResponse> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
+        public async Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data)
         {
-            ApplyAuthHeader();
+            var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(data),
+                    Encoding.UTF8,
+                    "application/json")
+            };
 
-            var json = JsonSerializer.Serialize(data);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
+            ApplyAuthHeader(request);
 
-            var response = await _httpClient.PostAsync(endpoint, content);
+            var response = await _httpClient.SendAsync(request);
             response.EnsureSuccessStatusCode();
 
-            var responseJson = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<TResponse>(responseJson, _jsonOptions)!;
-        }
-
-        public async Task<TResponse> PutAsync<TRequest, TResponse>(string endpoint, TRequest data)
-        {
-            ApplyAuthHeader();
-
-            var json = JsonSerializer.Serialize(data);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
-
-            var response = await _httpClient.PutAsync(endpoint, content);
-            response.EnsureSuccessStatusCode();
-
-            var responseJson = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<TResponse>(responseJson, _jsonOptions)!;
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<TResponse>(json, _jsonOptions);
         }
 
         public async Task<bool> DeleteAsync(string endpoint)
         {
-            ApplyAuthHeader();
+            var request = new HttpRequestMessage(HttpMethod.Delete, endpoint);
+            ApplyAuthHeader(request);
 
-            var response = await _httpClient.DeleteAsync(endpoint);
+            var response = await _httpClient.SendAsync(request);
             return response.IsSuccessStatusCode;
-        }
-
-        public async Task<bool> LoginAsync(string email, string password)
-        {
-            var payload = new { email, password };
-
-            var result = await PostAsync<object, AuthResult>("auth/login", payload);
-
-            if (result.Success)
-            {
-                AuthToken = result.Token;
-                return true;
-            }
-
-            return false;
-        }
-
-        public async Task<bool> RegisterAsync(string email, string password, string firstName, string lastName)
-        {
-            var payload = new { email, password, firstName, lastName };
-
-            var result = await PostAsync<object, AuthResult>("auth/register", payload);
-
-            if (result.Success)
-            {
-                AuthToken = result.Token;
-                return true;
-            }
-
-            return false;
         }
     }
 }
