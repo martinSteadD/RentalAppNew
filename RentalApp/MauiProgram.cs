@@ -24,6 +24,11 @@ public static class MauiProgram
 
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<INavigationService, NavigationService>();
+        // Coursework API services
+        builder.Services.AddSingleton<IApiService, ApiService>();
+        builder.Services.AddSingleton<IRentalService, RentalService>();
+        builder.Services.AddSingleton<ILocationService, LocationService>();
+
 
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<AppShell>();
