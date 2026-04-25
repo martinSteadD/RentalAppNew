@@ -47,9 +47,9 @@ namespace RentalApp.ViewModels
                 IsBusy = true;
                 ErrorMessage = string.Empty;
 
-                var success = await _authService.LoginAsync(Email, Password);
+                var token = await _authService.LoginAsync(Email, Password);
 
-                if (success)
+                if (!string.IsNullOrWhiteSpace(token))
                 {
                     await _navigation.NavigateToAsync("main");
                 }

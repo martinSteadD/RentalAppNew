@@ -15,27 +15,24 @@ namespace RentalApp.Services
             _api = api;
         }
 
-        public async Task<bool> LoginAsync(string email, string password)
+        public async Task<string?> LoginAsync(string email, string password)
         {
-            var payload = new
-            {
-                email,
-                password
-            };
+            var payload = new { email, password };
 
             var response = await _api.PostAsync<object, LoginResponse>("auth/token", payload);
 
             if (response == null || string.IsNullOrWhiteSpace(response.Token))
-                return false;
+                return null;
 
             Token = response.Token;
             _api.SetToken(Token);
 
-            // Fetch and store the user profile
+            // Optionally load user profile
             CurrentUser = await GetProfileAsync();
 
-            return true;
+            return Token;
         }
+
 
         public async Task<bool> RegisterAsync(string firstName, string lastName, string email, string password)
         {

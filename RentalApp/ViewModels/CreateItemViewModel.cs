@@ -56,7 +56,7 @@ public partial class CreateItemViewModel : BaseViewModel
         }
     }
 
-    [RelayCommand]
+   [RelayCommand]
     private async Task CreateItemAsync()
     {
         if (IsBusy)
@@ -76,17 +76,14 @@ public partial class CreateItemViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var item = new Item
+            var item = new CreateItemRequest
             {
                 Title = TitleText,
                 Description = Description,
                 DailyRate = decimal.Parse(DailyRate),
                 CategoryId = SelectedCategory.Id,
-                Category = SelectedCategory.Name,
-                OwnerId = _authService.CurrentUser!.Id,
-                OwnerName = $"{_authService.CurrentUser.FirstName} {_authService.CurrentUser.LastName}",
-                IsAvailable = true,
-                CreatedAt = DateTime.UtcNow
+                Latitude = 0,
+                Longitude = 0
             };
 
             var result = await _apiService.CreateItemAsync(item);
@@ -109,4 +106,5 @@ public partial class CreateItemViewModel : BaseViewModel
             IsBusy = false;
         }
     }
+
 }

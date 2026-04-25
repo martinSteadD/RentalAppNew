@@ -8,7 +8,7 @@ namespace RentalApp.Services
     {
         Task<IEnumerable<Item>> GetItemsAsync();
         Task<IEnumerable<Category>> GetCategoriesAsync();
-        Task<Item?> CreateItemAsync(Item item);
+        Task<Item?> CreateItemAsync(CreateItemRequest item);
         Task<T?> GetAsync<T>(string endpoint);
         Task<TResponse?> PostAsync<TRequest, TResponse>(string endpoint, TRequest data);
         Task<bool> DeleteAsync(string endpoint);

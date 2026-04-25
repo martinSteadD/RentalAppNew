@@ -5,9 +5,8 @@ namespace RentalApp;
 
 public partial class AppShell : Shell
 {
-    public AppShell(AppShellViewModel viewModel)
+    public AppShell()
     {   
-        BindingContext = viewModel;
         InitializeComponent();
 
         // Register navigation routes

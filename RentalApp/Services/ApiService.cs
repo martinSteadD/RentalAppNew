@@ -3,7 +3,6 @@ using System.Text;
 using System.Text.Json;
 using RentalApp.Database.Models;
 
-
 namespace RentalApp.Services
 {
     public class ApiService : IApiService
@@ -103,24 +102,37 @@ namespace RentalApp.Services
 
             var json = await response.Content.ReadAsStringAsync();
 
-            return JsonSerializer.Deserialize<IEnumerable<Category>>(json, _jsonOptions)
-                ?? Enumerable.Empty<Category>();
+            var wrapper = JsonSerializer.Deserialize<CategoryResponse>(json, _jsonOptions);
+
+            return wrapper?.Categories ?? Enumerable.Empty<Category>();
         }
 
-        public async Task<Item?> CreateItemAsync(Item item)
-        {
-            var json = JsonSerializer.Serialize(item, _jsonOptions);
-            var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-            var response = await _httpClient.PostAsync("items", content);
+        public async Task<Item?> CreateItemAsync(CreateItemRequest item)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, "items")
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(item, _jsonOptions),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            ApplyAuthHeader(request);
+
+            var response = await _httpClient.SendAsync(request);
 
             if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                Console.WriteLine("CREATE ITEM ERROR: " + error);
                 return null;
+            }
 
-            var responseJson = await response.Content.ReadAsStringAsync();
-
-            return JsonSerializer.Deserialize<Item>(responseJson, _jsonOptions);
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Item>(json, _jsonOptions);
         }
+
 
 
 
