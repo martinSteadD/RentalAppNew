@@ -1,13 +1,11 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
+    x:Class="RentalApp.Views.BrowseItemsPage"
+    x:Name="BrowseItemsPageRoot"
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
     xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
-    x:Class="RentalApp.Views.BrowseItemsPage"
     Title="Browse Items">
-
-    <!-- IMPORTANT: No BindingContext here.
-         DI sets it in BrowseItemsPage.xaml.cs -->
 
     <Grid RowDefinitions="Auto, *">
 
@@ -22,7 +20,7 @@
                 FontAttributes="Bold" />
         </Border>
 
-        <!-- Items List wrapped in RefreshView (MAUI 9 requirement) -->
+        <!-- Items List wrapped in RefreshView -->
         <RefreshView
             Grid.Row="1"
             IsRefreshing="{Binding IsRefreshing}"
@@ -34,6 +32,8 @@
 
                 <CollectionView.ItemTemplate>
                     <DataTemplate>
+
+                        <!-- Entire card is now tappable -->
                         <Border 
                             Margin="10"
                             Padding="15"
@@ -41,6 +41,12 @@
                             Stroke="#dddddd"
                             StrokeThickness="1"
                             StrokeShape="RoundRectangle 12">
+
+                            <Border.GestureRecognizers>
+                                <TapGestureRecognizer
+                                    Command="{Binding Source={x:Reference BrowseItemsPageRoot}, Path=BindingContext.SelectItemCommand}"
+                                    CommandParameter="{Binding .}" />
+                            </Border.GestureRecognizers>
 
                             <Border.Shadow>
                                 <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
@@ -51,33 +57,36 @@
                                 <VerticalStackLayout Spacing="4">
 
                                     <Label 
-                                        Text="{Binding title}"
+                                        Text="{Binding Title}"
                                         FontSize="18"
                                         FontAttributes="Bold"
                                         TextColor="#333" />
 
                                     <Label 
-                                        Text="{Binding category}"
+                                        Text="{Binding Category}"
                                         FontSize="14"
                                         TextColor="#666" />
 
                                     <Label 
-                                        Text="{Binding dailyRate, StringFormat='£{0:F2} per day'}"
+                                        Text="{Binding DailyRate, StringFormat='£{0:F2} per day'}"
                                         FontSize="14"
                                         TextColor="#444" />
 
                                 </VerticalStackLayout>
 
-                                <ImageButton 
+                                <!-- Chevron icon only, no command -->
+                                <Label 
                                     Grid.Column="1"
-                                    Source="chevron_right.png"
-                                    BackgroundColor="Transparent"
-                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:BrowseItemsViewModel}}, Path=SelectItemCommand}"
-                                    CommandParameter="{Binding}" />
+                                    Text="›"
+                                    FontSize="24"
+                                    VerticalOptions="Center"
+                                    HorizontalOptions="Center"
+                                    TextColor="#999" />
 
                             </Grid>
 
                         </Border>
+
                     </DataTemplate>
                 </CollectionView.ItemTemplate>
 

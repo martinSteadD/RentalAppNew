@@ -87,9 +87,12 @@ namespace RentalApp.Services
                 throw new Exception("Failed to load items");
 
             var json = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<IEnumerable<Item>>(json, _jsonOptions)
-                ?? Enumerable.Empty<Item>();
+
+            var result = JsonSerializer.Deserialize<PagedItemsResponse>(json, _jsonOptions);
+
+            return result?.Items ?? Enumerable.Empty<Item>();
         }
+
 
         public async Task<IEnumerable<Category>> GetCategoriesAsync()
         {

@@ -23,7 +23,7 @@ namespace RentalApp.Services
                 password
             };
 
-            var response = await _api.PostAsync<object, LoginResponse>("auth/login", payload);
+            var response = await _api.PostAsync<object, LoginResponse>("auth/token", payload);
 
             if (response == null || string.IsNullOrWhiteSpace(response.Token))
                 return false;

@@ -64,6 +64,8 @@ public partial class BrowseItemsViewModel : BaseViewModel
     [RelayCommand]
     private async Task SelectItemAsync(Item item)
     {
+        System.Diagnostics.Debug.WriteLine("🔥 SelectItemAsync FIRED");
+    
         if (item == null)
             return;
 

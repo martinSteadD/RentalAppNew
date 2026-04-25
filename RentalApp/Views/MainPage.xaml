@@ -74,7 +74,7 @@
                     </Border.Shadow>
 
                     <Border.GestureRecognizers>
-                        <TapGestureRecognizer Command="{Binding NavigateToBrowseCommand}" />
+                        <TapGestureRecognizer Command="{Binding NavigateToBrowseItemsCommand}" />
                     </Border.GestureRecognizers>
 
                     <Grid ColumnDefinitions="Auto,*,Auto">

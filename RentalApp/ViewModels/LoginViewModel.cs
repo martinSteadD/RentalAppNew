@@ -51,7 +51,7 @@ namespace RentalApp.ViewModels
 
                 if (success)
                 {
-                    await _navigation.NavigateToAsync("//main");
+                    await _navigation.NavigateToAsync("main");
                 }
                 else
                 {

@@ -79,7 +79,7 @@
             <Button 
                 Text="Logout"
                 Command="{Binding LogoutCommand}"
-                BackgroundColor="#ff3b30"
+                BackgroundColor="#007aff"
                 TextColor="White"
                 CornerRadius="8"
                 HeightRequest="50"
