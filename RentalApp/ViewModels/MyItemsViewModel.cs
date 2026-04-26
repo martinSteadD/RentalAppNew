@@ -9,11 +9,15 @@ namespace RentalApp.ViewModels
     public partial class MyItemsViewModel : ObservableObject
     {
         private readonly IApiService _apiService;
+        private readonly IRentalService _rentalService;
         private readonly IAuthenticationService _authService;
         private readonly INavigationService _navigation;
 
         [ObservableProperty]
-        private ObservableCollection<Item> myItems = new();
+        private ObservableCollection<Item> availableItems = new();
+
+        [ObservableProperty]
+        private ObservableCollection<Item> rentedOutItems = new();
 
         [ObservableProperty]
         private bool isBusy;
@@ -23,15 +27,16 @@ namespace RentalApp.ViewModels
 
         public MyItemsViewModel(
             IApiService apiService,
+            IRentalService rentalService,
             IAuthenticationService authService,
             INavigationService navigation)
         {
             _apiService = apiService;
+            _rentalService = rentalService;
             _authService = authService;
             _navigation = navigation;
         }
 
-        // Called when page appears or user pulls to refresh
         [RelayCommand]
         public async Task LoadMyItemsAsync()
         {
@@ -45,16 +50,47 @@ namespace RentalApp.ViewModels
 
                 var userId = _authService.CurrentUserId;
 
-                // Fetch all items from API
-                var items = await _apiService.GetItemsAsync();
+                // 1️⃣ Load items you currently own
+                var allItems = await _apiService.GetItemsAsync();
+                var ownedItems = allItems.Where(i => i.OwnerId == userId).ToList();
 
-                // Filter to only items owned by the logged-in user
-                MyItems = new ObservableCollection<Item>(
-                    items.Where(i => i.OwnerId == userId));
+                // 2️⃣ Load rentals for items you own (even when rented)
+                var incomingRentals = await _rentalService.GetIncomingRentalsAsync();
+
+                // Clear lists
+                AvailableItems.Clear();
+                RentedOutItems.Clear();
+
+                // 3️⃣ Add available items
+                foreach (var item in ownedItems)
+                {
+                    AvailableItems.Add(item);
+                }
+
+                // 4️⃣ Add rented-out items
+                foreach (var rental in incomingRentals)
+                {
+                    var rentedItem = new Item
+                    {
+                        Id = rental.ItemId,
+                        Title = rental.ItemTitle ?? "Unknown Item",
+                        Description = rental.ItemDescription ?? "",
+                        Category = "", // API doesn't return category in rental
+                        OwnerId = rental.OwnerId,
+                        OwnerName = rental.OwnerName ?? "",
+                        IsAvailable = false,
+                        // Rental info
+                        CreatedBy = rental.OwnerId,
+                        DailyRate = rental.TotalPrice,
+                        // Custom rental fields
+                        // You can add these to Item.cs if you want to display them
+                    };
+
+                    RentedOutItems.Add(rentedItem);
+                }
             }
             catch (Exception ex)
             {
-                // Optional: Add error handling UI later
                 Console.WriteLine($"Failed to load items: {ex.Message}");
             }
             finally
@@ -64,11 +100,13 @@ namespace RentalApp.ViewModels
             }
         }
 
-        // Navigate to rental requests for a specific item
         [RelayCommand]
         private async Task ViewRequestsAsync(int itemId)
         {
-            await _navigation.NavigateToAsync($"rentalrequests?itemId={itemId}");
+            await _navigation.NavigateToAsync("rentalrequests", new Dictionary<string, object>
+            {
+                { "ItemId", itemId }
+            });
         }
     }
 }

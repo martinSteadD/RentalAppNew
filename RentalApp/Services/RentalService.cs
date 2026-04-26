@@ -13,30 +13,36 @@ namespace RentalApp.Services
 
         public async Task<List<Rental>> GetMyRentalsAsync()
         {
-            return await _api.GetAsync<List<Rental>>("rentals/my");
+            return await _api.GetAsync<List<Rental>>("rentals/my")
+                    ?? new List<Rental>();
         }
 
-        public async Task<List<Rental>> GetRentalsForItemAsync(int itemId)
+        public async Task<List<Rental>> GetIncomingRentalsAsync()
         {
-            return await _api.GetAsync<List<Rental>>($"rentals/item/{itemId}");
+            var wrapper = await _api.GetAsync<IncomingRentalsResponse>("rentals/incoming");
+
+            return wrapper?.Rentals ?? new List<Rental>();
         }
+
 
         public async Task<Rental?> RequestRentalAsync(int itemId)
         {
             var payload = new { itemId };
-
-            return await _api.PostAsync<object, Rental>("rentals/request", payload);
+            return await _api.PostAsync<object, Rental>("rentals", payload);
         }
 
         public async Task<bool> ApproveRentalAsync(int rentalId)
         {
-            var result = await _api.PostAsync<object, object>($"rentals/{rentalId}/approve", new { });
+            var payload = new { status = "Approved" };
+            var result = await _api.PatchAsync<object, object>($"rentals/{rentalId}/status", payload);
             return result != null;
         }
 
         public async Task<bool> CancelRentalAsync(int rentalId)
         {
-            return await _api.DeleteAsync($"rentals/{rentalId}");
+            var payload = new { status = "Cancelled" };
+            var result = await _api.PatchAsync<object, object>($"rentals/{rentalId}/status", payload);
+            return result != null;
         }
     }
 }

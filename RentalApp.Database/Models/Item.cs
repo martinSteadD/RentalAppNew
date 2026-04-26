@@ -13,6 +13,8 @@ namespace RentalApp.Database.Models
         public int OwnerId { get; set; }
         public string OwnerName { get; set; }
         public double? OwnerRating { get; set; }
+        public int CreatedBy { get; set; }
+
 
         public bool IsAvailable { get; set; }
         public double? AverageRating { get; set; }

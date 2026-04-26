@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    x:Class="RentalApp.Views.RentalRequestsPage"
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
+    Title="Rental Requests">
+
+    <VerticalStackLayout Padding="20" Spacing="15">
+
+        <!-- Error Banner -->
+        <Border BackgroundColor="#ffcccc"
+                Padding="10"
+                IsVisible="{Binding HasError}">
+            <Label Text="{Binding ErrorMessage}"
+                   TextColor="Black"
+                   FontAttributes="Bold" />
+        </Border>
+
+        <!-- Requests List -->
+        <CollectionView ItemsSource="{Binding Requests}"
+                        SelectionMode="None">
+
+            <CollectionView.EmptyView>
+                <VerticalStackLayout Padding="20"
+                                     HorizontalOptions="Center"
+                                     VerticalOptions="Center">
+                    <Label Text="No rental requests yet."
+                           FontSize="18"
+                           TextColor="Gray" />
+                </VerticalStackLayout>
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border Stroke="#ddd"
+                            StrokeThickness="1"
+                            BackgroundColor="White"
+                            Padding="15"
+                            Margin="0,0,0,10"
+                            StrokeShape="RoundRectangle 10">
+
+                        <VerticalStackLayout Spacing="6">
+
+                            <Label Text="{Binding BorrowerName}"
+                                   FontSize="18"
+                                   FontAttributes="Bold" />
+
+                            <Label Text="{Binding DateRange}"
+                                   FontSize="14"
+                                   TextColor="Gray" />
+
+                            <Label Text="{Binding TotalPriceFormatted}"
+                                   FontSize="14"
+                                   TextColor="DarkGreen" />
+
+                            <HorizontalStackLayout Spacing="10" Margin="0,10,0,0">
+
+                                <Button Text="Approve"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RentalRequestsViewModel}}, Path=ApproveCommand}"
+                                        CommandParameter="{Binding Id}"
+                                        BackgroundColor="#28a745"
+                                        TextColor="White"
+                                        CornerRadius="8" />
+
+                                <Button Text="Reject"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RentalRequestsViewModel}}, Path=RejectCommand}"
+                                        CommandParameter="{Binding Id}"
+                                        BackgroundColor="#dc3545"
+                                        TextColor="White"
+                                        CornerRadius="8" />
+
+                            </HorizontalStackLayout>
+
+                        </VerticalStackLayout>
+
+                    </Border>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+
+        </CollectionView>
+
+    </VerticalStackLayout>
+
+</ContentPage>

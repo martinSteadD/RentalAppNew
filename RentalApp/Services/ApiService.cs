@@ -44,9 +44,11 @@ namespace RentalApp.Services
             ApplyAuthHeader(request);
 
             var response = await _httpClient.SendAsync(request);
+            var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("API RESPONSE (" + endpoint + "): " + json);
+
             response.EnsureSuccessStatusCode();
 
-            var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<T>(json, _jsonOptions);
         }
 
@@ -132,6 +134,28 @@ namespace RentalApp.Services
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<Item>(json, _jsonOptions);
         }
+
+        public async Task<TResponse?> PatchAsync<TRequest, TResponse>(string endpoint, TRequest data)
+        {
+            var json = JsonSerializer.Serialize(data);
+            var content = new StringContent(json, Encoding.UTF8, "application/json");
+
+            var request = new HttpRequestMessage(HttpMethod.Patch, endpoint)
+            {
+                Content = content
+            };
+
+            ApplyAuthHeader(request);
+
+            var response = await _httpClient.SendAsync(request);
+
+            if (!response.IsSuccessStatusCode)
+                return default;
+
+            var responseJson = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<TResponse>(responseJson, _jsonOptions);
+        }
+
 
 
 

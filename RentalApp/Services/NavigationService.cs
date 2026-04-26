@@ -1,6 +1,7 @@
 using RentalApp.Views;
 using RentalApp.ViewModels;
 using RentalApp.Database.Models;
+
 namespace RentalApp.Services;
 
 public class NavigationService : INavigationService
@@ -26,6 +27,7 @@ public class NavigationService : INavigationService
             "userlist" => _serviceProvider.GetRequiredService<UserListPage>(),
             "main" => _serviceProvider.GetRequiredService<MainPage>(),
             "myItems" => _serviceProvider.GetRequiredService<MyItemsPage>(),
+            "rentalrequests" => _serviceProvider.GetRequiredService<RentalRequestsPage>(),
             _ => throw new Exception($"Unknown route: {route}")
         };
 
@@ -33,34 +35,32 @@ public class NavigationService : INavigationService
     }
 
     public async Task NavigateToAsync(string route, Dictionary<string, object> parameters)
-{
-    // Resolve the page via DI
-    Page page = route switch
     {
-        "itemdetails" => _serviceProvider.GetRequiredService<ItemDetailsPage>(),
-        "browse" => _serviceProvider.GetRequiredService<BrowseItemsPage>(),
-        "createitem" => _serviceProvider.GetRequiredService<CreateItemPage>(),
-        "myrentals" => _serviceProvider.GetRequiredService<MyRentalsPage>(),
-        "profile" => _serviceProvider.GetRequiredService<ProfilePage>(),
-        "userlist" => _serviceProvider.GetRequiredService<UserListPage>(),
-        "login" => _serviceProvider.GetRequiredService<LoginPage>(),
-        "register" => _serviceProvider.GetRequiredService<RegisterPage>(),
-        "main" => _serviceProvider.GetRequiredService<MainPage>(),
-        "myItems" => _serviceProvider.GetRequiredService<MyItemsPage>(),
-        _ => throw new Exception($"Unknown route: {route}")
-    };
+        Page page = route switch
+        {
+            "itemdetails" => _serviceProvider.GetRequiredService<ItemDetailsPage>(),
+            "rentalrequests" => _serviceProvider.GetRequiredService<RentalRequestsPage>(),
+            _ => throw new Exception($"Unknown route: {route}")
+        };
 
-    // Pass the Item into the ViewModel
-    if (page.BindingContext is ItemDetailsViewModel vm &&
-        parameters.TryGetValue("Item", out var itemObj) &&
-        itemObj is Item item)
-    {
-        vm.Item = item;
+        // Pass Item into ItemDetailsViewModel
+        if (page.BindingContext is ItemDetailsViewModel itemVm &&
+            parameters.TryGetValue("Item", out var itemObj) &&
+            itemObj is Item item)
+        {
+            itemVm.Item = item;
+        }
+
+        // Pass ItemId into RentalRequestsViewModel
+        if (page.BindingContext is RentalRequestsViewModel reqVm &&
+            parameters.TryGetValue("ItemId", out var idObj) &&
+            idObj is int itemId)
+        {
+            reqVm.Initialize(itemId);
+        }
+
+        await Shell.Current.Navigation.PushAsync(page);
     }
-
-    await Shell.Current.Navigation.PushAsync(page);
-}
-
 
     public async Task NavigateBackAsync()
     {

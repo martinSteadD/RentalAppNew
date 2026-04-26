@@ -12,6 +12,7 @@ namespace RentalApp.ViewModels;
 /// @details Extends ObservableObject to provide property change notifications and includes
 /// common properties like IsBusy, Title, and error handling
 /// @extends ObservableObject
+
 public partial class BaseViewModel : ObservableObject
 {
     /// @brief Indicates whether the view model is currently performing a busy operation
