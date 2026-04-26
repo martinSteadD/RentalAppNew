@@ -87,6 +87,13 @@ public partial class MainViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task NavigateToMyItemsAsync()
+    {
+        await _navigationService.NavigateToAsync("myItems");
+    }
+
+
+    [RelayCommand]
     private async Task RefreshDataAsync()
     {
         try

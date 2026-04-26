@@ -20,6 +20,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("about", typeof(AboutPage));
         Routing.RegisterRoute("register",typeof(RegisterPage));
         Routing.RegisterRoute("main", typeof(MainPage));
+        Routing.RegisterRoute("myItems", typeof(MyItemsPage));
 
     }
 }

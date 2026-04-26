@@ -22,12 +22,17 @@ namespace RentalApp.ViewModels
         private bool isBusy;
 
         [ObservableProperty]
+        private bool hasError;
+
+        [ObservableProperty]
         private string errorMessage = string.Empty;
 
         public LoginViewModel(IAuthenticationService authService, INavigationService navigation)
         {
             _authService = authService;
             _navigation = navigation;
+
+            HasError = false;
         }
 
         [RelayCommand]
@@ -39,6 +44,7 @@ namespace RentalApp.ViewModels
             if (string.IsNullOrWhiteSpace(Email) || string.IsNullOrWhiteSpace(Password))
             {
                 ErrorMessage = "Please enter both email and password.";
+                HasError = true;
                 return;
             }
 
@@ -46,7 +52,7 @@ namespace RentalApp.ViewModels
             {
                 IsBusy = true;
                 ErrorMessage = string.Empty;
-
+              
                 var token = await _authService.LoginAsync(Email, Password);
 
                 if (!string.IsNullOrWhiteSpace(token))
@@ -56,11 +62,13 @@ namespace RentalApp.ViewModels
                 else
                 {
                     ErrorMessage = "Invalid email or password.";
+                    HasError = true;
                 }
             }
             catch (Exception ex)
             {
                 ErrorMessage = $"Login failed: {ex.Message}";
+                HasError = true;
             }
             finally
             {

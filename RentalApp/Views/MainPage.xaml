@@ -169,6 +169,42 @@
                     </Grid>
                 </Border>
 
+                <!-- My Items -->
+                <Border 
+                    Padding="20"
+                    BackgroundColor="White"
+                    Stroke="#dddddd"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+
+                    <Border.Shadow>
+                        <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
+                    </Border.Shadow>
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToMyItemsCommand}" />
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Label 
+                            Text="🧰"
+                            FontSize="28"
+                            VerticalOptions="Center" />
+
+                        <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
+                            <Label Text="My Items" FontSize="18" FontAttributes="Bold" />
+                            <Label Text="Items you're renting out" FontSize="14" TextColor="#666" />
+                        </VerticalStackLayout>
+
+                        <Label 
+                            Grid.Column="2"
+                            Text="›"
+                            FontSize="24"
+                            VerticalOptions="Center"
+                            TextColor="#999" />
+                    </Grid>
+                </Border>
+
                 <!-- Profile -->
                 <Border 
                     Padding="20"

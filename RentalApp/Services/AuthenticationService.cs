@@ -10,6 +10,8 @@ namespace RentalApp.Services
 
         public User? CurrentUser { get; private set; }
 
+        public int CurrentUserId => CurrentUser?.Id ?? 0;
+
         public AuthenticationService(IApiService api)
         {
             _api = api;

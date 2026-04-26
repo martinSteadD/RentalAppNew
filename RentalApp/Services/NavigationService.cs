@@ -25,6 +25,7 @@ public class NavigationService : INavigationService
             "profile" => _serviceProvider.GetRequiredService<ProfilePage>(),
             "userlist" => _serviceProvider.GetRequiredService<UserListPage>(),
             "main" => _serviceProvider.GetRequiredService<MainPage>(),
+            "myItems" => _serviceProvider.GetRequiredService<MyItemsPage>(),
             _ => throw new Exception($"Unknown route: {route}")
         };
 
@@ -45,6 +46,7 @@ public class NavigationService : INavigationService
         "login" => _serviceProvider.GetRequiredService<LoginPage>(),
         "register" => _serviceProvider.GetRequiredService<RegisterPage>(),
         "main" => _serviceProvider.GetRequiredService<MainPage>(),
+        "myItems" => _serviceProvider.GetRequiredService<MyItemsPage>(),
         _ => throw new Exception($"Unknown route: {route}")
     };
 
