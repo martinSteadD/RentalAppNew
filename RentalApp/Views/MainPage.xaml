@@ -6,6 +6,13 @@
     xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
     Title="Dashboard">
 
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Logout"
+            IconImageSource="logout.png"
+            Command="{Binding LogoutCommand}" />
+    </ContentPage.ToolbarItems>
+
     <ContentPage.BindingContext>
         <viewmodels:MainViewModel />
     </ContentPage.BindingContext>

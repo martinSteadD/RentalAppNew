@@ -28,6 +28,7 @@ public class NavigationService : INavigationService
             "main" => _serviceProvider.GetRequiredService<MainPage>(),
             "myItems" => _serviceProvider.GetRequiredService<MyItemsPage>(),
             "rentalrequests" => _serviceProvider.GetRequiredService<RentalRequestsPage>(),
+            "rentaldetails" => _serviceProvider.GetRequiredService<RentalDetailsPage>(),
             _ => throw new Exception($"Unknown route: {route}")
         };
 
@@ -50,15 +51,6 @@ public class NavigationService : INavigationService
         {
             itemVm.Item = item;
         }
-
-        // Pass ItemId into RentalRequestsViewModel
-        if (page.BindingContext is RentalRequestsViewModel reqVm &&
-            parameters.TryGetValue("ItemId", out var idObj) &&
-            idObj is int itemId)
-        {
-            reqVm.Initialize(itemId);
-        }
-
         await Shell.Current.Navigation.PushAsync(page);
     }
 

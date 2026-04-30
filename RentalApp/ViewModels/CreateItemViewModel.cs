@@ -3,6 +3,7 @@ using CommunityToolkit.Mvvm.Input;
 using RentalApp.Database.Models;
 using RentalApp.Services;
 using System.Collections.ObjectModel;
+using RentalApp.Models; // <-- Needed for LocalItem
 
 namespace RentalApp.ViewModels;
 
@@ -11,6 +12,7 @@ public partial class CreateItemViewModel : BaseViewModel
     private readonly IApiService _apiService;
     private readonly IAuthenticationService _authService;
     private readonly INavigationService _navigationService;
+    private readonly DatabaseService _databaseService;   // <-- NEW
 
     [ObservableProperty]
     private string titleText = string.Empty;
@@ -29,11 +31,13 @@ public partial class CreateItemViewModel : BaseViewModel
     public CreateItemViewModel(
         IApiService apiService,
         IAuthenticationService authService,
-        INavigationService navigationService)
+        INavigationService navigationService,
+        DatabaseService databaseService)   // <-- NEW
     {
         _apiService = apiService;
         _authService = authService;
         _navigationService = navigationService;
+        _databaseService = databaseService;   // <-- NEW
 
         Title = "Create Item";
 
@@ -56,7 +60,7 @@ public partial class CreateItemViewModel : BaseViewModel
         }
     }
 
-   [RelayCommand]
+    [RelayCommand]
     private async Task CreateItemAsync()
     {
         if (IsBusy)
@@ -94,6 +98,22 @@ public partial class CreateItemViewModel : BaseViewModel
                 return;
             }
 
+          
+            // SAVE TO SQLITE (NEW)
+
+            var localItem = new LocalItem
+            {
+                ApiItemId = result.Id,
+                Title = TitleText,
+                Description = Description,
+                Category = SelectedCategory.Name,
+                ImageUrl = null, // Can update this later if I add images
+                CreatedBy = _authService.CurrentUser!.Id,
+                LastSynced = DateTime.UtcNow
+            };
+
+            await _databaseService.SaveItemAsync(localItem);
+
             await Shell.Current.DisplayAlertAsync("Success", "Item created successfully!", "OK");
             await _navigationService.NavigateBackAsync();
         }
@@ -106,5 +126,4 @@ public partial class CreateItemViewModel : BaseViewModel
             IsBusy = false;
         }
     }
-
 }

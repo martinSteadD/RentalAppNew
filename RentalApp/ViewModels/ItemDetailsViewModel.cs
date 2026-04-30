@@ -13,12 +13,8 @@ public partial class ItemDetailsViewModel : BaseViewModel
 
     [ObservableProperty]
     private Item? item;
-    public string AvailabilityText =>
-        Item?.IsAvailable == true ? "Available" : "Not Available";
-
-    public Color AvailabilityColor =>
-        Item?.IsAvailable == true ? Colors.Green : Colors.Red;
-
+    public string AvailabilityText => "Available";
+    public Color AvailabilityColor => Colors.Green;
 
     public ItemDetailsViewModel(IRentalService rentalService, INavigationService navigationService)
     {

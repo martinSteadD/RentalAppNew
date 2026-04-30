@@ -6,8 +6,6 @@
     x:Class="RentalApp.Views.MyRentalsPage"
     Title="My Rentals">
 
-    <!-- BindingContext is set in code-behind via DI -->
-
     <Grid RowDefinitions="Auto, *">
 
         <!-- Error Banner -->
@@ -21,7 +19,6 @@
                 FontAttributes="Bold" />
         </Border>
 
-        <!-- Rentals List wrapped in RefreshView -->
         <RefreshView
             Grid.Row="1"
             IsRefreshing="{Binding IsBusy}"
@@ -56,27 +53,53 @@
 
                             <VerticalStackLayout Spacing="6">
 
+                                <!-- Item Title -->
                                 <Label 
-                                    Text="{Binding itemTitle}"
+                                    Text="{Binding ItemTitle}"
                                     FontSize="18"
                                     FontAttributes="Bold"
                                     TextColor="#222" />
 
+                                <!-- Category -->
                                 <Label 
-                                    Text="{Binding startDate, StringFormat='From: {0:dd MMM yyyy}'}"
+                                    Text="{Binding Category, StringFormat='Category: {0}'}"
                                     FontSize="14"
                                     TextColor="#555" />
 
+                                <!-- Daily Rate -->
                                 <Label 
-                                    Text="{Binding endDate, StringFormat='To: {0:dd MMM yyyy}'}"
+                                    Text="{Binding DailyRate, StringFormat='Daily Rate: £{0}'}"
                                     FontSize="14"
                                     TextColor="#555" />
 
+                                <!-- Rental Status -->
                                 <Label 
-                                    Text="{Binding status}"
+                                    Text="{Binding Rental.Status}"
                                     FontSize="14"
                                     TextColor="#007aff"
                                     FontAttributes="Bold" />
+
+                                <!-- Dates -->
+                                <Label 
+                                    Text="{Binding Rental.StartDate, StringFormat='From: {0:dd MMM yyyy}'}"
+                                    FontSize="14"
+                                    TextColor="#555" />
+
+                                <Label 
+                                    Text="{Binding Rental.EndDate, StringFormat='To: {0:dd MMM yyyy}'}"
+                                    FontSize="14"
+                                    TextColor="#555" />
+
+                                <!-- Mark Returned -->
+                                <Button 
+                                    Text="Mark Returned"
+                                    BackgroundColor="#007aff"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    Padding="10"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MyRentalsViewModel}}, Path=MarkReturnedCommand}"
+                                    CommandParameter="{Binding Rental.ApiRentalId}"
+                                    IsVisible="{Binding Rental.Status, Converter={StaticResource StatusToReturnVisibleConverter}}" />
 
                             </VerticalStackLayout>
 

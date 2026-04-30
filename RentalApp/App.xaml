@@ -9,6 +9,7 @@
             <converters:InvertedBoolConverter x:Key="InvertedBoolConverter" />
             <converters:StringToBoolConverter x:Key="StringToBoolConverter" />
             <converters:NullToBoolConverter x:Key="NullToBoolConverter" />
+            <converters:StatusToReturnVisibleConverter x:Key="StatusToReturnVisibleConverter" />
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="Resources/Styles/Colors.xaml" />
                 <ResourceDictionary Source="Resources/Styles/Styles.xaml" />

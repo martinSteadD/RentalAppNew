@@ -20,17 +20,24 @@ public static class MauiProgram
                 fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
             });
 
+        // Core services
         builder.Services.AddSingleton<IAuthenticationService, AuthenticationService>();
         builder.Services.AddSingleton<INavigationService, NavigationService>();
+
         // Coursework API services
         builder.Services.AddSingleton<IApiService, ApiService>();
         builder.Services.AddSingleton<IRentalService, RentalService>();
         builder.Services.AddSingleton<ILocationService, LocationService>();
 
+        // Database
+        builder.Services.AddSingleton<DatabaseService>();
+
+        // Shell + App
         builder.Services.AddSingleton<AppShellViewModel>();
         builder.Services.AddSingleton<AppShell>();
         builder.Services.AddSingleton<App>();
 
+        // Pages + ViewModels
         builder.Services.AddTransient<MainViewModel>();
         builder.Services.AddTransient<MainPage>();
         builder.Services.AddTransient<LoginViewModel>();
@@ -57,12 +64,22 @@ public static class MauiProgram
         builder.Services.AddTransient<MyItemsPage>();
         builder.Services.AddTransient<RentalRequestsViewModel>();
         builder.Services.AddTransient<RentalRequestsPage>();
-
+        builder.Services.AddTransient<RentalDetailsViewModel>();
+        builder.Services.AddTransient<RentalDetailsPage>();
 
 #if DEBUG
-        builder.Logging.AddDebug();
+        builder.Logging.AddDebug();   // ✔ MUST be BEFORE Build()
 #endif
 
-        return builder.Build();
+        var app = builder.Build();
+
+        // Initialize database safely without blocking UI
+        Task.Run(async () =>
+        {
+            var db = app.Services.GetRequiredService<DatabaseService>();
+            await db.InitializeAsync();
+        });
+
+        return app;
     }
 }

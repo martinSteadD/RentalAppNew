@@ -15,7 +15,7 @@ namespace RentalApp.Views
             base.OnAppearing();
 
             if (BindingContext is MyItemsViewModel vm)
-                await vm.LoadMyItemsAsync();
+                await vm.LoadItemsAsync();
         }
     }
 }

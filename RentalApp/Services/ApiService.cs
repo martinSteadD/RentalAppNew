@@ -1,6 +1,8 @@
 using System.Net.Http.Headers;
 using System.Text;
 using System.Text.Json;
+using System.Net.Http.Json;
+using RentalApp.Models;
 using RentalApp.Database.Models;
 
 namespace RentalApp.Services
@@ -28,7 +30,17 @@ namespace RentalApp.Services
         {
             _token = token;
         }
+        public async Task EnsureTokenLoadedAsync()
+        {
+            if (!string.IsNullOrWhiteSpace(_token))
+                return;
 
+            var storedToken = await SecureStorage.GetAsync("auth_token");
+            if (!string.IsNullOrWhiteSpace(storedToken))
+                _token = storedToken;
+        }
+
+        
         private void ApplyAuthHeader(HttpRequestMessage request)
         {
             if (!string.IsNullOrWhiteSpace(_token))
@@ -38,6 +50,8 @@ namespace RentalApp.Services
             }
         }
 
+
+
         public async Task<T?> GetAsync<T>(string endpoint)
         {
             var request = new HttpRequestMessage(HttpMethod.Get, endpoint);
@@ -45,7 +59,6 @@ namespace RentalApp.Services
 
             var response = await _httpClient.SendAsync(request);
             var json = await response.Content.ReadAsStringAsync();
-            Console.WriteLine("API RESPONSE (" + endpoint + "): " + json);
 
             response.EnsureSuccessStatusCode();
 
@@ -57,7 +70,7 @@ namespace RentalApp.Services
             var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
             {
                 Content = new StringContent(
-                    JsonSerializer.Serialize(data),
+                    JsonSerializer.Serialize(data, _jsonOptions),
                     Encoding.UTF8,
                     "application/json")
             };
@@ -71,6 +84,20 @@ namespace RentalApp.Services
             return JsonSerializer.Deserialize<TResponse>(json, _jsonOptions);
         }
 
+        public async Task<Item?> GetItemByIdAsync(int id)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Get, $"items/{id}");
+            ApplyAuthHeader(request);
+
+            var response = await _httpClient.SendAsync(request);
+            if (!response.IsSuccessStatusCode)
+                return null;
+
+            var json = await response.Content.ReadAsStringAsync();
+            return JsonSerializer.Deserialize<Item>(json, _jsonOptions);
+        }
+
+
         public async Task<bool> DeleteAsync(string endpoint)
         {
             var request = new HttpRequestMessage(HttpMethod.Delete, endpoint);
@@ -82,17 +109,36 @@ namespace RentalApp.Services
 
         public async Task<IEnumerable<Item>> GetItemsAsync()
         {
+            Console.WriteLine("🌐 [ApiService] GetItemsAsync CALLED");
+
+            Console.WriteLine("🌐 [ApiService] Sending GET request to: items");
             var response = await _httpClient.GetAsync("items");
 
+            Console.WriteLine($"🌐 [ApiService] Response status: {response.StatusCode}");
+
             if (!response.IsSuccessStatusCode)
+            {
+                Console.WriteLine("❌ [ApiService] Response was NOT successful");
                 throw new Exception("Failed to load items");
+            }
 
             var json = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"📥 [ApiService] JSON RECEIVED: {json}");
 
             var result = JsonSerializer.Deserialize<PagedItemsResponse>(json, _jsonOptions);
 
+            if (result == null)
+            {
+                Console.WriteLine("❌ [ApiService] Deserialization returned NULL");
+            }
+            else
+            {
+                Console.WriteLine($"📦 [ApiService] Deserialized {result.Items?.Count() ?? 0} items");
+            }
+
             return result?.Items ?? Enumerable.Empty<Item>();
         }
+
 
 
         public async Task<IEnumerable<Category>> GetCategoriesAsync()
@@ -147,13 +193,52 @@ namespace RentalApp.Services
 
             ApplyAuthHeader(request);
 
+            Console.WriteLine("DEBUG → PATCH URL: " + endpoint);
+            Console.WriteLine("DEBUG → PATCH BODY: " + json);
+
             var response = await _httpClient.SendAsync(request);
+
+            Console.WriteLine("DEBUG → RESPONSE STATUS: " + response.StatusCode);
+
+            var responseBody = await response.Content.ReadAsStringAsync();
+            Console.WriteLine("DEBUG → RESPONSE BODY: " + responseBody);
 
             if (!response.IsSuccessStatusCode)
                 return default;
 
-            var responseJson = await response.Content.ReadAsStringAsync();
-            return JsonSerializer.Deserialize<TResponse>(responseJson, _jsonOptions);
+            return JsonSerializer.Deserialize<TResponse>(responseBody, _jsonOptions);
+        }
+
+        public async Task<bool> UpdateItemAsync(int itemId, UpdateItemRequest request)
+        {
+            var response = await _httpClient.PatchAsJsonAsync($"items/{itemId}", request);
+            return response.IsSuccessStatusCode;
+        }
+
+
+        public async Task<List<Item>> GetAllItemsAsync()
+        {
+            var allItems = new List<Item>();
+            int page = 1;
+
+            while (true)
+            {
+                var response = await _httpClient.GetAsync($"items?page={page}");
+
+                if (!response.IsSuccessStatusCode)
+                    break;
+
+                var json = await response.Content.ReadAsStringAsync();
+                var result = JsonSerializer.Deserialize<PagedItemsResponse>(json, _jsonOptions);
+
+                if (result?.Items == null || result.Items.Count == 0)
+                    break;
+
+                allItems.AddRange(result.Items);
+                page++;
+            }
+
+            return allItems;
         }
 
 

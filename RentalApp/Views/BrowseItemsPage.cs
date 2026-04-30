@@ -9,4 +9,11 @@ public partial class BrowseItemsPage : ContentPage
         InitializeComponent();
         BindingContext = vm;
     }
+
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        Console.WriteLine("📱 [BrowseItemsPage] OnAppearing FIRED");
+    }
+
 }

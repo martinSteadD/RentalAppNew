@@ -2,6 +2,7 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RentalApp.Database.Models;
 using RentalApp.Services;
+using RentalApp.Models;
 using System.Collections.ObjectModel;
 
 namespace RentalApp.ViewModels;
@@ -9,20 +10,20 @@ namespace RentalApp.ViewModels;
 public partial class RentalRequestsViewModel : BaseViewModel
 {
     private readonly IRentalService _rentalService;
+    private readonly DatabaseService _databaseService;
+    private readonly IAuthenticationService _authService;
 
     [ObservableProperty]
-    private ObservableCollection<Rental> requests = new();
+    private ObservableCollection<LocalRental> requests = new();
 
-    private int _itemId;
-
-    public RentalRequestsViewModel(IRentalService rentalService)
+    public RentalRequestsViewModel(
+        IRentalService rentalService,
+        DatabaseService databaseService,
+        IAuthenticationService authService)
     {
         _rentalService = rentalService;
-    }
-
-    public void Initialize(int itemId)
-    {
-        _itemId = itemId;
+        _databaseService = databaseService;
+        _authService = authService;
     }
 
     public async Task LoadRequestsAsync()
@@ -32,16 +33,48 @@ public partial class RentalRequestsViewModel : BaseViewModel
             IsBusy = true;
             HasError = false;
 
-            // 1. Get all incoming rental requests (for items I own)
-            var rentals = await _rentalService.GetIncomingRentalsAsync();
+            int ownerId = _authService.CurrentUser!.Id;
 
-            // 2. Filter to only requests for THIS item and only Pending ones
-            var pending = rentals
-                .Where(r => r.ItemId == _itemId &&
-                 (r.Status == "Requested" || r.Status == "Pending"));
+            // Pull incoming rentals from API
+            var apiRentals = await _rentalService.GetIncomingRentalsAsync();
 
-            // 3. Update the UI
-            Requests = new ObservableCollection<Rental>(pending);
+            // Save API rentals into SQLite
+            foreach (var rental in apiRentals)
+            {
+                var local = new LocalRental
+                {
+                    ApiRentalId = rental.Id,
+                    ApiItemId = rental.ItemId,
+                    BorrowerId = rental.BorrowerId,
+                    RequestedBy = rental.BorrowerId,
+                    Status = rental.Status,
+                    LastSynced = DateTime.UtcNow
+                };
+
+                await _databaseService.SaveRentalAsync(local);
+            }
+
+            // Load all rentals from SQLite
+            var allRentals = await _databaseService.GetAllRentalsAsync();
+
+            // Get all items owned by this user
+            var myItems = await _databaseService.GetAllItemsAsync();
+            var myItemIds = myItems
+                .Where(i => i.CreatedBy == ownerId)
+                .Select(i => i.ApiItemId)
+                .ToList();
+
+            // Filter rentals for items I own + pending/requested
+            var pending = allRentals
+                .Where(r => myItemIds.Contains(r.ApiItemId))
+                .Where(r =>
+                {
+                    var status = r.Status?.Trim().ToLower() ?? "";
+                    return status == "pending" || status == "requested";
+                })
+                .ToList();
+
+            Requests = new ObservableCollection<LocalRental>(pending);
         }
         catch (Exception ex)
         {
@@ -53,13 +86,27 @@ public partial class RentalRequestsViewModel : BaseViewModel
         }
     }
 
-
     [RelayCommand]
     public async Task ApproveAsync(int rentalId)
     {
         try
         {
-            await _rentalService.ApproveRentalAsync(rentalId);
+            var success = await _rentalService.UpdateRentalStatusAsync(rentalId, "Approved");
+
+            if (!success)
+            {
+                SetError("Failed to approve request.");
+                return;
+            }
+
+            var rental = await _databaseService.GetRentalByApiIdAsync(rentalId);
+            if (rental != null)
+            {
+                rental.Status = "Approved";
+                rental.LastSynced = DateTime.UtcNow;
+                await _databaseService.SaveRentalAsync(rental);
+            }
+
             await LoadRequestsAsync();
         }
         catch (Exception ex)
@@ -73,7 +120,22 @@ public partial class RentalRequestsViewModel : BaseViewModel
     {
         try
         {
-            await _rentalService.CancelRentalAsync(rentalId);
+            var success = await _rentalService.UpdateRentalStatusAsync(rentalId, "Rejected");
+
+            if (!success)
+            {
+                SetError("Failed to reject request.");
+                return;
+            }
+
+            var rental = await _databaseService.GetRentalByApiIdAsync(rentalId);
+            if (rental != null)
+            {
+                rental.Status = "Rejected";
+                rental.LastSynced = DateTime.UtcNow;
+                await _databaseService.SaveRentalAsync(rental);
+            }
+
             await LoadRequestsAsync();
         }
         catch (Exception ex)

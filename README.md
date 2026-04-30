@@ -1,12 +1,12 @@
 ---
-title: "StarterApp readme"
+title: "RentalApp readme"
 parent: StarterApp
 grand_parent: C# practice
 nav_order: 5
 mermaid: true
 ---
 
-# StarterApp
+# RentalApp
 
 The purpose of this app is to act as a starting point for further development. It provides some
 basic features including:

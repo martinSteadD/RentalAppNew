@@ -52,7 +52,7 @@ public partial class MainViewModel : BaseViewModel
         if (result)
         {
             await _authService.LogoutAsync();
-            await _navigationService.NavigateToAsync("//login");
+            await _navigationService.NavigateToAsync("login");
         }
     }
 
