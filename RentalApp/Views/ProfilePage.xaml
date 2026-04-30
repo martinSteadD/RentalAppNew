@@ -6,6 +6,16 @@
     x:Class="RentalApp.Views.ProfilePage"
     Title="My Profile">
 
+    <!-- Toolbar Logout -->
+    <ContentPage.ToolbarItems>
+        <ToolbarItem 
+            Text="Logout"
+            IconImageSource="logout.png"
+            Command="{Binding LogoutCommand}"
+            Priority="0"
+            Order="Primary" />
+    </ContentPage.ToolbarItems>
+
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="16">
 
@@ -34,56 +44,47 @@
 
                 <VerticalStackLayout Spacing="10">
 
+                    <!-- Full Name -->
                     <Label 
-                        Text="{Binding User.firstName}"
+                        Text="{Binding FullName}"
                         FontSize="26"
                         FontAttributes="Bold"
                         TextColor="#222" />
 
+                    <!-- Email -->
                     <Label 
-                        Text="{Binding User.lastName}"
-                        FontSize="22"
-                        TextColor="#444" />
-
-                    <Label 
-                        Text="{Binding User.email}"
+                        Text="{Binding CurrentUser.Email}"
                         FontSize="18"
                         TextColor="#666" />
 
+                    <!-- Join Date -->
                     <Label 
-                        Text="{Binding User.createdAt, StringFormat='Member since {0:dd MMM yyyy}'}"
+                        Text="{Binding JoinDateFormatted}"
                         FontSize="14"
                         TextColor="#777" />
 
+                    <!-- Rating -->
                     <Label 
-                        Text="{Binding User.averageRating, StringFormat='Rating: {0:F1} ★'}"
+                        Text="{Binding DisplayRating}"
                         FontSize="18"
                         TextColor="#007aff"
                         FontAttributes="Bold" />
 
+                    <!-- Items Listed -->
                     <Label 
-                        Text="{Binding User.itemsListed, StringFormat='Items Listed: {0}'}"
+                        Text="{Binding ItemsListedFormatted}"
                         FontSize="16"
                         TextColor="#444" />
 
+                    <!-- Rentals Completed -->
                     <Label 
-                        Text="{Binding User.rentalsCompleted, StringFormat='Rentals Completed: {0}'}"
+                        Text="{Binding RentalsCompletedFormatted}"
                         FontSize="16"
                         TextColor="#444" />
 
                 </VerticalStackLayout>
 
             </Border>
-
-            <!-- Logout Button -->
-            <Button 
-                Text="Logout"
-                Command="{Binding LogoutCommand}"
-                BackgroundColor="#007aff"
-                TextColor="White"
-                CornerRadius="8"
-                HeightRequest="50"
-                Margin="0,20,0,0" />
 
             <!-- Loading Indicator -->
             <ActivityIndicator 

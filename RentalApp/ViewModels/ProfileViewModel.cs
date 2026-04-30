@@ -1,8 +1,3 @@
-/// @file ProfileViewModel.cs
-/// @brief User profile management view model
-/// @author 
-/// @date 2025
-
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RentalApp.Database.Models;
@@ -10,16 +5,13 @@ using RentalApp.Services;
 
 namespace RentalApp.ViewModels;
 
-/// @brief View model for the user profile page
-/// @details Manages user profile display and (future) password change functionality
-/// @extends BaseViewModel
 public partial class ProfileViewModel : BaseViewModel
 {
     private readonly IAuthenticationService _authService;
     private readonly INavigationService _navigationService;
 
     [ObservableProperty]
-    private User? currentUser;
+    private ApiUser? currentUser;
 
     [ObservableProperty]
     private string currentPassword = string.Empty;
@@ -42,13 +34,54 @@ public partial class ProfileViewModel : BaseViewModel
         LoadUserData();
     }
 
-    /// Loads the current user's profile data
     private void LoadUserData()
     {
         CurrentUser = _authService.CurrentUser;
     }
 
-    /// Password change (disabled for now — coursework API does not support it)
+    // ---------------------------------------------------------
+    // COMPUTED PROPERTIES FOR PROFILE PAGE
+    // ---------------------------------------------------------
+
+    public string FullName =>
+        CurrentUser == null
+            ? ""
+            : $"{CurrentUser.FirstName} {CurrentUser.LastName}";
+
+    public string JoinDateFormatted =>
+        CurrentUser == null
+            ? ""
+            : $"Member since {CurrentUser.CreatedAt:dd MMM yyyy}";
+
+    public string DisplayRating =>
+        CurrentUser?.AverageRating == null
+            ? "Rating: N/A"
+            : $"Rating: {CurrentUser.AverageRating:F1} ★";
+
+
+    public string ItemsListedFormatted =>
+        CurrentUser == null
+            ? "Items Listed: 0"
+            : $"Items Listed: {CurrentUser.ItemsListed}";
+
+    public string RentalsCompletedFormatted =>
+        CurrentUser == null
+            ? "Rentals Completed: 0"
+            : $"Rentals Completed: {CurrentUser.RentalsCompleted}";
+
+    partial void OnCurrentUserChanged(ApiUser? value)
+    {
+        OnPropertyChanged(nameof(FullName));
+        OnPropertyChanged(nameof(JoinDateFormatted));
+        OnPropertyChanged(nameof(DisplayRating));
+        OnPropertyChanged(nameof(ItemsListedFormatted));
+        OnPropertyChanged(nameof(RentalsCompletedFormatted));
+    }
+
+    // ---------------------------------------------------------
+    // PASSWORD CHANGE (disabled)
+    // ---------------------------------------------------------
+
     [RelayCommand]
     private async Task ChangePasswordAsync()
     {
@@ -63,7 +96,6 @@ public partial class ProfileViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            // Temporary behaviour — feature not supported yet
             await Shell.Current.DisplayAlertAsync(
                 "Not Available",
                 "Password change is not supported in this version of the app.",

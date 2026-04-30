@@ -10,8 +10,9 @@ public partial class MainViewModel : BaseViewModel
     private readonly IAuthenticationService _authService;
     private readonly INavigationService _navigationService;
 
+    // FIX: Use ApiUser instead of User
     [ObservableProperty]
-    private User? currentUser;
+    private ApiUser? currentUser;
 
     [ObservableProperty]
     private string welcomeMessage = string.Empty;
@@ -91,7 +92,6 @@ public partial class MainViewModel : BaseViewModel
     {
         await _navigationService.NavigateToAsync("myItems");
     }
-
 
     [RelayCommand]
     private async Task RefreshDataAsync()

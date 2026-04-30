@@ -8,7 +8,7 @@ namespace RentalApp.Services
 
         public string? Token { get; private set; }
 
-        public User? CurrentUser { get; private set; }
+        public ApiUser? CurrentUser { get; private set; }
 
         public int CurrentUserId => CurrentUser?.Id ?? 0;
 
@@ -29,12 +29,11 @@ namespace RentalApp.Services
             Token = response.Token;
             _api.SetToken(Token);
 
-            // Optionally load user profile
+            // Load user profile from API
             CurrentUser = await GetProfileAsync();
 
             return Token;
         }
-
 
         public async Task<bool> RegisterAsync(string firstName, string lastName, string email, string password)
         {
@@ -51,9 +50,9 @@ namespace RentalApp.Services
             return result != null;
         }
 
-        public async Task<User?> GetProfileAsync()
+        public async Task<ApiUser?> GetProfileAsync()
         {
-            return await _api.GetAsync<User>("users/me");
+            return await _api.GetAsync<ApiUser>("users/me");
         }
 
         public Task LogoutAsync()
