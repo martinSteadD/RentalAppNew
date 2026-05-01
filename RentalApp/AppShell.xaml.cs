@@ -23,7 +23,7 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("myItems", typeof(MyItemsPage));
         Routing.RegisterRoute("rentalrequests", typeof(RentalRequestsPage));
         Routing.RegisterRoute("rentaldetails", typeof(RentalDetailsPage));
-
+        Routing.RegisterRoute("nearby", typeof(NearbyItemsPage));
 
 
     }

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
+    x:Class="RentalApp.Views.NearbyItemsPage"
+    Title="Nearby Items">
+
+    <RefreshView Command="{Binding RefreshAsync}" IsRefreshing="{Binding IsBusy}">
+        <CollectionView ItemsSource="{Binding Items}">
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Border
+                        Margin="10"
+                        Padding="10"
+                        Stroke="#dddddd"
+                        StrokeThickness="1"
+                        StrokeShape="RoundRectangle 8">
+
+                        <Border.Shadow>
+                            <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
+                        </Border.Shadow>
+
+                        <VerticalStackLayout>
+
+                            <Image
+                                Source="{Binding ImageUrl}"
+                                HeightRequest="150"
+                                Aspect="AspectFill" />
+
+                            <Label
+                                Text="{Binding Title}"
+                                FontAttributes="Bold"
+                                FontSize="18" />
+
+                            <Label
+                                Text="{Binding Category}"
+                                FontSize="14"
+                                TextColor="Gray" />
+
+                            <Label
+                                Text="{Binding DailyRate, StringFormat='£{0:F2} per day'}"
+                                FontSize="14" />
+
+                            <Label
+                                Text="{Binding OwnerName, StringFormat='Owner: {0}'}"
+                                FontSize="13"
+                                TextColor="Gray" />
+
+                            <Label
+                                Text="{Binding AverageRating, StringFormat='Rating: {0:F1} ★'}"
+                                FontSize="13"
+                                TextColor="DarkGoldenrod" />
+
+                        </VerticalStackLayout>
+
+                    </Border>
+
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </RefreshView>
+
+</ContentPage>

@@ -94,6 +94,13 @@ public partial class MainViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task NavigateToNearbyItemsAsync()
+    {
+        await _navigationService.NavigateToAsync("nearbyitems");
+    }
+
+
+    [RelayCommand]
     private async Task RefreshDataAsync()
     {
         try

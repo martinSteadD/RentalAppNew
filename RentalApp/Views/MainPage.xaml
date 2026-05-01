@@ -13,9 +13,6 @@
             Command="{Binding LogoutCommand}" />
     </ContentPage.ToolbarItems>
 
-    <ContentPage.BindingContext>
-        <viewmodels:MainViewModel />
-    </ContentPage.BindingContext>
 
     <ScrollView>
         <VerticalStackLayout Padding="20" Spacing="20">
@@ -93,6 +90,42 @@
                         <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
                             <Label Text="Browse Items" FontSize="18" FontAttributes="Bold" />
                             <Label Text="View all available items" FontSize="14" TextColor="#666" />
+                        </VerticalStackLayout>
+
+                        <Label 
+                            Grid.Column="2"
+                            Text="›"
+                            FontSize="24"
+                            VerticalOptions="Center"
+                            TextColor="#999" />
+                    </Grid>
+                </Border>
+
+                <!-- Nearby Items -->
+                <Border 
+                    Padding="20"
+                    BackgroundColor="White"
+                    Stroke="#dddddd"
+                    StrokeThickness="1"
+                    StrokeShape="RoundRectangle 12">
+
+                    <Border.Shadow>
+                        <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
+                    </Border.Shadow>
+
+                    <Border.GestureRecognizers>
+                        <TapGestureRecognizer Command="{Binding NavigateToNearbyItemsCommand}" />
+                    </Border.GestureRecognizers>
+
+                    <Grid ColumnDefinitions="Auto,*,Auto">
+                        <Label 
+                            Text="📍"
+                            FontSize="28"
+                            VerticalOptions="Center" />
+
+                        <VerticalStackLayout Grid.Column="1" Margin="15,0,0,0">
+                            <Label Text="Nearby Items" FontSize="18" FontAttributes="Bold" />
+                            <Label Text="Find items near your location" FontSize="14" TextColor="#666" />
                         </VerticalStackLayout>
 
                         <Label 

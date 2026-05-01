@@ -29,6 +29,7 @@ public class NavigationService : INavigationService
             "myItems" => _serviceProvider.GetRequiredService<MyItemsPage>(),
             "rentalrequests" => _serviceProvider.GetRequiredService<RentalRequestsPage>(),
             "rentaldetails" => _serviceProvider.GetRequiredService<RentalDetailsPage>(),
+            "nearbyitems" => _serviceProvider.GetRequiredService<NearbyItemsPage>(),
             _ => throw new Exception($"Unknown route: {route}")
         };
 

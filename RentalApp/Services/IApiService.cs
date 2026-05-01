@@ -17,8 +17,9 @@ namespace RentalApp.Services
         Task<TResponse?> PatchAsync<TRequest, TResponse>(string url, TRequest body);
         Task<bool> DeleteAsync(string endpoint);
         Task<bool> UpdateItemAsync(int itemId, UpdateItemRequest request);
-
         Task EnsureTokenLoadedAsync();
         void SetToken(string? token);
+        Task<List<Item>> GetNearbyItemsAsync(double latitude, double longitude, int radius);
+
     }
 }

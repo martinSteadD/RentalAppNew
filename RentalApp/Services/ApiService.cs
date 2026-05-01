@@ -241,9 +241,24 @@ namespace RentalApp.Services
             return allItems;
         }
 
+        public async Task<List<Item>> GetNearbyItemsAsync(double latitude, double longitude, int radius = 50)
+        {
+            var url = $"items/nearby?lat={latitude}&lon={longitude}&radius={radius}";
 
+            var request = new HttpRequestMessage(HttpMethod.Get, url);
+            ApplyAuthHeader(request);
 
+            var response = await _httpClient.SendAsync(request);
 
+            if (!response.IsSuccessStatusCode)
+                return new List<Item>();
+
+            var json = await response.Content.ReadAsStringAsync();
+
+            var responseObj = JsonSerializer.Deserialize<NearbyItemsResponse>(json, _jsonOptions);
+
+            return responseObj?.Items ?? new List<Item>();
+        }
 
     }
 }

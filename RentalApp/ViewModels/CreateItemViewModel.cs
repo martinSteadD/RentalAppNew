@@ -13,6 +13,7 @@ public partial class CreateItemViewModel : BaseViewModel
     private readonly IAuthenticationService _authService;
     private readonly INavigationService _navigationService;
     private readonly DatabaseService _databaseService;   // <-- NEW
+    private readonly ILocationService _locationService;
 
     [ObservableProperty]
     private string titleText = string.Empty;
@@ -32,12 +33,15 @@ public partial class CreateItemViewModel : BaseViewModel
         IApiService apiService,
         IAuthenticationService authService,
         INavigationService navigationService,
-        DatabaseService databaseService)   // <-- NEW
+        DatabaseService databaseService,
+        ILocationService locationService) 
+    
     {
         _apiService = apiService;
         _authService = authService;
         _navigationService = navigationService;
-        _databaseService = databaseService;   // <-- NEW
+        _databaseService = databaseService;   
+        _locationService = locationService;
 
         Title = "Create Item";
 
@@ -80,14 +84,16 @@ public partial class CreateItemViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
+            var (lat, lng) = await _locationService.GetCurrentLocationAsync();
+
             var item = new CreateItemRequest
             {
                 Title = TitleText,
                 Description = Description,
                 DailyRate = decimal.Parse(DailyRate),
                 CategoryId = SelectedCategory.Id,
-                Latitude = 0,
-                Longitude = 0
+                Latitude = lat,
+                Longitude = lng
             };
 
             var result = await _apiService.CreateItemAsync(item);
