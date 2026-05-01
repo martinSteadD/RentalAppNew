@@ -90,6 +90,75 @@
                 HeightRequest="50"
                 Margin="0,10,0,0" />
 
+          
+
+            <!-- Reviews Section -->
+            <VerticalStackLayout Spacing="10" Margin="0,20,0,0">
+
+                <!-- Section Title -->
+                <Label 
+                    Text="Reviews"
+                    FontSize="22"
+                    FontAttributes="Bold"
+                    TextColor="#222" />
+
+                <!-- Average Rating -->
+                <Label 
+                    Text="{Binding AverageRating, StringFormat='Average Rating: {0:F1} ★'}"
+                    FontSize="18"
+                    TextColor="#444" />
+
+                <!-- Reviews List -->
+                <CollectionView 
+                    ItemsSource="{Binding Reviews}"
+                    Margin="0,10,0,0">
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Border 
+                                Stroke="#dddddd"
+                                StrokeThickness="1"
+                                StrokeShape="RoundRectangle 12"
+                                Padding="12"
+                                Margin="0,5">
+
+                                <VerticalStackLayout Spacing="4">
+
+                                    <!-- Reviewer Name -->
+                                    <Label 
+                                        Text="{Binding ReviewerName}"
+                                        FontSize="16"
+                                        FontAttributes="Bold"
+                                        TextColor="#222" />
+
+                                    <!-- Rating -->
+                                    <Label 
+                                        Text="{Binding Rating, StringFormat='Rating: {0} ★'}"
+                                        FontSize="14"
+                                        TextColor="#444" />
+
+                                    <!-- Comment -->
+                                    <Label 
+                                        Text="{Binding Comment}"
+                                        FontSize="14"
+                                        TextColor="#333" />
+
+                                    <!-- Date -->
+                                    <Label 
+                                        Text="{Binding CreatedAt, StringFormat='{0:dd MMM yyyy}'}"
+                                        FontSize="12"
+                                        TextColor="#777" />
+
+                                </VerticalStackLayout>
+
+                            </Border>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+
+            </VerticalStackLayout>
+
             <!-- Loading Indicator -->
             <ActivityIndicator 
                 IsRunning="{Binding IsBusy}"

@@ -101,6 +101,20 @@
                                     CommandParameter="{Binding Rental.ApiRentalId}"
                                     IsVisible="{Binding Rental.Status, Converter={StaticResource StatusToReturnVisibleConverter}}" />
 
+                                <!-- Add Review Button -->
+                                <!-- Add Review Button -->
+                                <Button 
+                                    Text="Add Review"
+                                    BackgroundColor="#007aff"
+                                    TextColor="White"
+                                    CornerRadius="8"
+                                    HeightRequest="50"
+                                    Margin="0,10,0,0"
+                                    Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:MyRentalsViewModel}}, Path=AddReviewCommand}"
+                                    CommandParameter="{Binding Rental.ApiRentalId}"
+                                    IsVisible="{Binding Rental.Status, Converter={StaticResource StatusToReviewVisibleConverter}}" />
+
+
                             </VerticalStackLayout>
 
                         </Border>

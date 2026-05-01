@@ -208,5 +208,28 @@ public partial class MyRentalsViewModel : BaseViewModel
         {
             IsBusy = false;
         }
+
     }
+
+    [RelayCommand]
+    private async Task AddReviewAsync(int rentalId)
+    {
+        var rental = Rentals.FirstOrDefault(r => r.Rental.ApiRentalId == rentalId);
+
+        if (rental == null)
+        {
+            Console.WriteLine("[DEBUG] Rental not found in Rentals list.");
+            return;
+        }
+
+        // ⭐ THIS IS THE IMPORTANT LOG ⭐
+        Console.WriteLine($"[DEBUG] RentalId={rental.Rental.ApiRentalId}, Status={rental.Rental.Status}");
+
+        await _navigationService.NavigateToAsync("addreview", new Dictionary<string, object>
+        {
+            { "RentalId", rental.Rental.ApiRentalId }
+        });
+    }
+
+
 }

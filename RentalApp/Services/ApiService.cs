@@ -22,7 +22,8 @@ namespace RentalApp.Services
 
             _jsonOptions = new JsonSerializerOptions
             {
-                PropertyNameCaseInsensitive = true
+                PropertyNameCaseInsensitive = true,
+                PropertyNamingPolicy = JsonNamingPolicy.CamelCase
             };
         }
 
@@ -83,6 +84,31 @@ namespace RentalApp.Services
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<TResponse>(json, _jsonOptions);
         }
+
+        public async Task<bool> PostAsync<TRequest>(string endpoint, TRequest data)
+        {
+            var request = new HttpRequestMessage(HttpMethod.Post, endpoint)
+            {
+                Content = new StringContent(
+                    JsonSerializer.Serialize(data, _jsonOptions),
+                    Encoding.UTF8,
+                    "application/json")
+            };
+
+            ApplyAuthHeader(request);
+
+            var response = await _httpClient.SendAsync(request);
+
+            var body = await response.Content.ReadAsStringAsync();
+
+            Console.WriteLine($"[POST] URL: {endpoint}");
+            Console.WriteLine($"[POST] Status: {response.StatusCode}");
+            Console.WriteLine($"[POST] Body: {body}");
+
+            return response.IsSuccessStatusCode;
+        }
+
+
 
         public async Task<Item?> GetItemByIdAsync(int id)
         {

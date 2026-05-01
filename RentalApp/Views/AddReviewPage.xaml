@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
+    x:Class="RentalApp.Views.AddReviewPage"
+    Title="Add Review">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Error Message -->
+            <Label
+                Text="{Binding ErrorMessage}"
+                TextColor="Red"
+                FontAttributes="Bold"
+                IsVisible="{Binding HasError}" />
+
+            <!-- Rating Label -->
+            <Label Text="Rating (1–5)" FontSize="18" />
+
+            <!-- Rating Picker -->
+            <Picker
+                Title="Select Rating"
+                ItemsSource="{Binding Ratings}"
+                SelectedItem="{Binding Rating}" />
+
+            <!-- Comment Label -->
+            <Label Text="Comment" FontSize="18" />
+
+            <!-- Comment Entry -->
+            <Editor
+                Text="{Binding Comment}"
+                AutoSize="TextChanges"
+                Placeholder="Write your review..."
+                HeightRequest="120" />
+
+            <!-- Submit Button -->
+            <Button
+                Text="Submit Review"
+                Command="{Binding SubmitCommand}"
+                BackgroundColor="#4CAF50"
+                TextColor="White"
+                CornerRadius="8"
+                IsEnabled="{Binding IsNotBusy}" />
+
+            <!-- Cancel Button -->
+            <Button
+                Text="Cancel"
+                Command="{Binding CancelCommand}"
+                BackgroundColor="#B0B0B0"
+                TextColor="Black"
+                CornerRadius="8"
+                IsEnabled="{Binding IsNotBusy}" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="Blue" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

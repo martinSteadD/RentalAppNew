@@ -30,6 +30,7 @@ public class NavigationService : INavigationService
             "rentalrequests" => _serviceProvider.GetRequiredService<RentalRequestsPage>(),
             "rentaldetails" => _serviceProvider.GetRequiredService<RentalDetailsPage>(),
             "nearbyitems" => _serviceProvider.GetRequiredService<NearbyItemsPage>(),
+            "addreview" => _serviceProvider.GetRequiredService<AddReviewPage>(),
             _ => throw new Exception($"Unknown route: {route}")
         };
 
@@ -42,6 +43,7 @@ public class NavigationService : INavigationService
         {
             "itemdetails" => _serviceProvider.GetRequiredService<ItemDetailsPage>(),
             "rentalrequests" => _serviceProvider.GetRequiredService<RentalRequestsPage>(),
+            "addreview" => _serviceProvider.GetRequiredService<AddReviewPage>(),
             _ => throw new Exception($"Unknown route: {route}")
         };
 
@@ -52,6 +54,15 @@ public class NavigationService : INavigationService
         {
             itemVm.Item = item;
         }
+
+        // ⭐ FIXED: Correct key is "RentalId", not "ItemId"
+        if (page.BindingContext is AddReviewViewModel reviewVm &&
+            parameters.TryGetValue("RentalId", out var idObj) &&
+            idObj is int rentalId)
+        {
+            reviewVm.RentalId = rentalId;
+        }
+
         await Shell.Current.Navigation.PushAsync(page);
     }
 
