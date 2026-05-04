@@ -1,6 +1,7 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using RentalApp.Models;
+using RentalApp.Database.Models;
+using RentalApp.Repositories;
 using RentalApp.Services;
 
 namespace RentalApp.ViewModels;
@@ -8,90 +9,59 @@ namespace RentalApp.ViewModels;
 [QueryProperty(nameof(Rental), "Rental")]
 public partial class RentalDetailsViewModel : ObservableObject
 {
-    private readonly IRentalService _rentalService;
-    private readonly DatabaseService _databaseService;
-    private readonly IApiService _api;
-
-    public RentalDetailsViewModel(
-        IRentalService rentalService,
-        DatabaseService databaseService,
-        IApiService api)
-    {
-        _rentalService = rentalService;
-        _databaseService = databaseService;
-        _api = api;
-    }
+    private readonly IRentalRepository _rentals;
+    private readonly IAuthenticationService _auth;
 
     [ObservableProperty]
-    private LocalRental rental;  
+    private Rental? rental;
 
-    // status checks
-    public bool IsApproved => Rental?.Status?.Equals("Approved", StringComparison.OrdinalIgnoreCase) == true;
-    public bool IsOutForRent => Rental?.Status?.Equals("Out for Rent", StringComparison.OrdinalIgnoreCase) == true;
-    public bool IsReturned => Rental?.Status?.Equals("Returned", StringComparison.OrdinalIgnoreCase) == true;
+    [ObservableProperty]
+    private bool hasError;
 
-    partial void OnRentalChanged(LocalRental value)
+    [ObservableProperty]
+    private string errorMessage = string.Empty;
+
+    public RentalDetailsViewModel(
+        IRentalRepository rentals,
+        IAuthenticationService auth)
     {
-        Console.WriteLine("DEBUG → Rental loaded:");
-        Console.WriteLine($"DEBUG → Rental.Id = {value.ApiRentalId}");
-        Console.WriteLine($"DEBUG → Rental.ItemId = {value.ApiItemId}");
-        Console.WriteLine($"DEBUG → Rental.Status = {value.Status}");
-
-        OnPropertyChanged(nameof(IsApproved));
-        OnPropertyChanged(nameof(IsOutForRent));
-        OnPropertyChanged(nameof(IsReturned));
+        _rentals = rentals;
+        _auth = auth;
     }
 
     [RelayCommand]
-    public async Task MarkOutForRentAsync() => await UpdateStatus("Out for Rent");
-
-    [RelayCommand]
-    public async Task MarkReturnedAsync() => await UpdateStatus("Returned");
-
-    [RelayCommand]
-    public async Task MarkCompletedAsync()
+    public async Task MarkOutForRentAsync()
     {
-         await UpdateStatus("Completed");
-
-        // ⭐ NEW: Set item back to available
-        await _api.UpdateItemAsync(Rental.ApiItemId, new UpdateItemRequest
-        {
-            IsAvailable = true
-        });
-
-        // ⭐ Update local SQLite item
-        var item = await _databaseService.GetItemByApiIdAsync(Rental.ApiItemId);
-        if (item != null)
-        {
-            item.IsAvailable = true;
-            item.LastSynced = DateTime.UtcNow;
-            await _databaseService.SaveItemAsync(item);
-        }
-
-        await Shell.Current.DisplayAlert("Success", "Item is now available again.", "OK");
-
-    } 
-
-    private async Task UpdateStatus(string newStatus)
-    {
-        var success = await _rentalService.UpdateRentalStatusAsync(Rental.ApiRentalId, newStatus);
-
-        if (!success)
-        {
-            await Shell.Current.DisplayAlert("Error", "Failed to update rental status.", "OK");
+        if (Rental == null)
             return;
+
+        try
+        {
+            await _rentals.UpdateRentalStatusAsync(Rental.Id, "out for rent");
+            await Shell.Current.DisplayAlert("Success", "Marked as Out for Rent.", "OK");
         }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Failed to update status: {ex.Message}";
+        }
+    }
 
-        // Update local SQLite
-        Rental.Status = newStatus;
-        Rental.LastSynced = DateTime.UtcNow;
-        await _databaseService.SaveRentalAsync(Rental);
+    [RelayCommand]
+    public async Task MarkReturnedAsync()
+    {
+        if (Rental == null)
+            return;
 
-        // Refresh UI
-        OnPropertyChanged(nameof(IsApproved));
-        OnPropertyChanged(nameof(IsOutForRent));
-        OnPropertyChanged(nameof(IsReturned));
-
-        await Shell.Current.DisplayAlert("Success", $"Rental marked as {newStatus}.", "OK");
+        try
+        {
+            await _rentals.UpdateRentalStatusAsync(Rental.Id, "returned");
+            await Shell.Current.DisplayAlert("Success", "Marked as Returned.", "OK");
+        }
+        catch (Exception ex)
+        {
+            HasError = true;
+            ErrorMessage = $"Failed to update status: {ex.Message}";
+        }
     }
 }

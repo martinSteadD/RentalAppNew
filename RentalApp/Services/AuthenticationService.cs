@@ -32,8 +32,16 @@ namespace RentalApp.Services
             // Load user profile from API
             CurrentUser = await GetProfileAsync();
 
+            // ⭐ FIX: Save user ID for later use
+            if (CurrentUser != null)
+            {
+                Preferences.Set("UserId", CurrentUser.Id);
+                Console.WriteLine($"Saved UserId = {CurrentUser.Id}");
+            }
+
             return Token;
         }
+
 
         public async Task<bool> RegisterAsync(string firstName, string lastName, string email, string password)
         {
@@ -59,9 +67,11 @@ namespace RentalApp.Services
         {
             Token = null;
             CurrentUser = null;
+            Preferences.Remove("UserId");
             _api.SetToken(null);
             return Task.CompletedTask;
         }
+
     }
 
     public class LoginResponse

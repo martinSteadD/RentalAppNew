@@ -7,7 +7,6 @@ namespace RentalApp.ViewModels
     public partial class LoginViewModel : ObservableObject
     {
         private readonly IAuthenticationService _authService;
-        private readonly INavigationService _navigation;
 
         [ObservableProperty]
         private string email = string.Empty;
@@ -27,11 +26,9 @@ namespace RentalApp.ViewModels
         [ObservableProperty]
         private string errorMessage = string.Empty;
 
-        public LoginViewModel(IAuthenticationService authService, INavigationService navigation)
+        public LoginViewModel(IAuthenticationService authService)
         {
             _authService = authService;
-            _navigation = navigation;
-
             HasError = false;
         }
 
@@ -52,12 +49,13 @@ namespace RentalApp.ViewModels
             {
                 IsBusy = true;
                 ErrorMessage = string.Empty;
-              
+                HasError = false;
+
                 var token = await _authService.LoginAsync(Email, Password);
 
                 if (!string.IsNullOrWhiteSpace(token))
                 {
-                    await _navigation.NavigateToAsync("main");
+                    await Shell.Current.GoToAsync("main");
                 }
                 else
                 {
@@ -79,7 +77,7 @@ namespace RentalApp.ViewModels
         [RelayCommand]
         private async Task NavigateToRegisterAsync()
         {
-            await _navigation.NavigateToAsync("register");
+            await Shell.Current.GoToAsync("register");
         }
     }
 }

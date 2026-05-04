@@ -8,24 +8,16 @@ namespace RentalApp.ViewModels;
 public partial class MainViewModel : BaseViewModel
 {
     private readonly IAuthenticationService _authService;
-    private readonly INavigationService _navigationService;
 
-    // FIX: Use ApiUser instead of User
     [ObservableProperty]
     private ApiUser? currentUser;
 
     [ObservableProperty]
     private string welcomeMessage = string.Empty;
 
-    public MainViewModel()
-    {
-        Title = "Dashboard";
-    }
-
-    public MainViewModel(IAuthenticationService authService, INavigationService navigationService)
+    public MainViewModel(IAuthenticationService authService)
     {
         _authService = authService;
-        _navigationService = navigationService;
         Title = "Dashboard";
 
         LoadUserData();
@@ -53,52 +45,51 @@ public partial class MainViewModel : BaseViewModel
         if (result)
         {
             await _authService.LogoutAsync();
-            await _navigationService.NavigateToAsync("login");
+            await Shell.Current.GoToAsync("//login");
         }
     }
 
     [RelayCommand]
     private async Task NavigateToProfileAsync()
     {
-        await _navigationService.NavigateToAsync("profile");
+        await Shell.Current.GoToAsync("profile");
     }
 
     [RelayCommand]
     private async Task NavigateToSettingsAsync()
     {
-        await _navigationService.NavigateToAsync("settings");
+        await Shell.Current.GoToAsync("settings");
     }
 
     [RelayCommand]
     private async Task NavigateToBrowseItemsAsync()
     {
-        await _navigationService.NavigateToAsync("browse");
+        await Shell.Current.GoToAsync("browse");
     }
 
     [RelayCommand]
     private async Task NavigateToMyRentalsAsync()
     {
-        await _navigationService.NavigateToAsync("myrentals");
+        await Shell.Current.GoToAsync("myrentals");
     }
 
     [RelayCommand]
     private async Task NavigateToCreateItemAsync()
     {
-        await _navigationService.NavigateToAsync("createitem");
+        await Shell.Current.GoToAsync("createitem");
     }
 
     [RelayCommand]
     private async Task NavigateToMyItemsAsync()
     {
-        await _navigationService.NavigateToAsync("myItems");
+        await Shell.Current.GoToAsync("myitems");
     }
 
     [RelayCommand]
     private async Task NavigateToNearbyItemsAsync()
     {
-        await _navigationService.NavigateToAsync("nearbyitems");
+        await Shell.Current.GoToAsync("nearbyitems");
     }
-
 
     [RelayCommand]
     private async Task RefreshDataAsync()

@@ -7,42 +7,40 @@ namespace RentalApp.ViewModels;
 public partial class AppShellViewModel : ObservableObject
 {
     private readonly IAuthenticationService _authService;
-    private readonly INavigationService _navigationService;
 
-    public AppShellViewModel(IAuthenticationService authService, INavigationService navigationService)
+    public AppShellViewModel(IAuthenticationService authService)
     {
         _authService = authService;
-        _navigationService = navigationService;
     }
 
     [RelayCommand]
     private async Task NavigateToProfileAsync()
     {
-        await _navigationService.NavigateToAsync("profile");
+        await Shell.Current.GoToAsync("profile");
     }
 
     [RelayCommand]
     private async Task NavigateToSettingsAsync()
     {
-        await _navigationService.NavigateToAsync("settings");
+        await Shell.Current.GoToAsync("settings");
     }
 
     [RelayCommand]
     private async Task NavigateToMyRentalsAsync()
     {
-        await _navigationService.NavigateToAsync("myrentals");
+        await Shell.Current.GoToAsync("myrentals");
     }
 
     [RelayCommand]
     private async Task NavigateToBrowseItemsAsync()
     {
-        await _navigationService.NavigateToAsync("browse");
+        await Shell.Current.GoToAsync("browse");
     }
 
     [RelayCommand]
     private async Task LogoutAsync()
     {
         await _authService.LogoutAsync();
-        await _navigationService.NavigateToAsync("//login");
+        await Shell.Current.GoToAsync("//login");
     }
 }

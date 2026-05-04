@@ -51,8 +51,8 @@
                                            Margin="0,5,0,0" />
 
                                     <Button Text="View Rental Requests"
-                                            Command="{Binding BindingContext.OpenRentalRequestsCommand, Source={x:Reference RootPage}}"
-                                            CommandParameter="{Binding Id}"
+                                            Command="{Binding BindingContext.ViewRentalRequestsCommand, Source={x:Reference RootPage}}"
+                                            CommandParameter="{Binding .}" 
                                             BackgroundColor="#007aff"
                                             TextColor="White"
                                             CornerRadius="8"

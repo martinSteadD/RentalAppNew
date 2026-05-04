@@ -83,14 +83,22 @@
             <!-- Request Rental Button -->
             <Button 
                 Text="Request Rental"
-                Command="{Binding RequestRentalCommand}"
+                Command="{Binding SubmitRentalRequestCommand}"
                 BackgroundColor="#007aff"
                 TextColor="White"
                 CornerRadius="8"
                 HeightRequest="50"
                 Margin="0,10,0,0" />
 
-          
+            <Button 
+                Text="Edit Item"
+                Command="{Binding EditItemCommand}"
+                BackgroundColor="#007aff"
+                TextColor="White"
+                CornerRadius="8"
+                HeightRequest="50"
+                Margin="0,10,0,0"
+                IsVisible="{Binding IsOwner}" />   
 
             <!-- Reviews Section -->
             <VerticalStackLayout Spacing="10" Margin="0,20,0,0">

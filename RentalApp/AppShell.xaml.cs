@@ -16,16 +16,14 @@ public partial class AppShell : Shell
         Routing.RegisterRoute("myrentals", typeof(MyRentalsPage));
         Routing.RegisterRoute("profile", typeof(ProfilePage));
         Routing.RegisterRoute("login", typeof(LoginPage));
-        Routing.RegisterRoute("userlist", typeof(UserListPage));
-        Routing.RegisterRoute("about", typeof(AboutPage));
-        Routing.RegisterRoute("register",typeof(RegisterPage));
+        Routing.RegisterRoute("register", typeof(RegisterPage));
         Routing.RegisterRoute("main", typeof(MainPage));
-        Routing.RegisterRoute("myItems", typeof(MyItemsPage));
+        Routing.RegisterRoute("myitems", typeof(MyItemsPage));          // FIXED
         Routing.RegisterRoute("rentalrequests", typeof(RentalRequestsPage));
         Routing.RegisterRoute("rentaldetails", typeof(RentalDetailsPage));
-        Routing.RegisterRoute("nearby", typeof(NearbyItemsPage));
+        Routing.RegisterRoute("nearbyitems", typeof(NearbyItemsPage));  // FIXED
+        Routing.RegisterRoute("edititem", typeof(EditItemPage));
+        Routing.RegisterRoute("requestrental", typeof(RequestRentalPage));
         Routing.RegisterRoute("addreview", typeof(AddReviewPage));
-
-
     }
 }

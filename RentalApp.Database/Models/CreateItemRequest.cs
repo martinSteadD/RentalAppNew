@@ -20,5 +20,9 @@ public class CreateItemRequest
 
     [JsonPropertyName("longitude")]
     public double Longitude { get; set; }
+
+    [JsonPropertyName("ownerId")]
+    public int OwnerId { get; set; }
+
     
 }

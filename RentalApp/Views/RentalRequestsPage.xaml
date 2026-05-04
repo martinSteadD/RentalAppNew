@@ -6,10 +6,12 @@
     xmlns:viewmodels="clr-namespace:RentalApp.ViewModels"
     Title="Rental Requests">
 
-    <VerticalStackLayout Padding="20" Spacing="15">
+    <!-- Use a Grid so the CollectionView gets full height -->
+    <Grid RowDefinitions="Auto,*" Padding="20">
 
         <!-- Error Banner -->
-        <Border BackgroundColor="#ffcccc"
+        <Border Grid.Row="0"
+                BackgroundColor="#ffcccc"
                 Padding="10"
                 IsVisible="{Binding HasError}">
             <Label Text="{Binding ErrorMessage}"
@@ -18,7 +20,8 @@
         </Border>
 
         <!-- Requests List -->
-        <CollectionView ItemsSource="{Binding Requests}"
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding IncomingRequests}"
                         SelectionMode="None">
 
             <CollectionView.EmptyView>
@@ -42,40 +45,35 @@
 
                         <VerticalStackLayout Spacing="6">
 
-                            <!-- Borrower ID -->
                             <Label Text="{Binding BorrowerId, StringFormat='Borrower ID: {0}'}"
                                    FontSize="18"
                                    FontAttributes="Bold" />
 
-                            <!-- Item ID -->
                             <Label Text="{Binding ApiItemId, StringFormat='Item ID: {0}'}"
                                    FontSize="14"
                                    TextColor="Gray" />
 
-                            <!-- Status -->
                             <Label Text="{Binding Status}"
                                    FontSize="14"
                                    TextColor="DarkRed"
                                    FontAttributes="Bold" />
 
-                            <!-- Last Synced -->
                             <Label Text="{Binding LastSynced, StringFormat='Updated: {0:dd MMM HH:mm}'}"
                                    FontSize="14"
                                    TextColor="Gray" />
 
                             <HorizontalStackLayout Spacing="10" Margin="0,10,0,0">
 
-                                <!-- IMPORTANT: LocalRental uses ApiRentalId -->
                                 <Button Text="Approve"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RentalRequestsViewModel}}, Path=ApproveCommand}"
-                                        CommandParameter="{Binding ApiRentalId}"
+                                        CommandParameter="{Binding .}"
                                         BackgroundColor="#28a745"
                                         TextColor="White"
                                         CornerRadius="8" />
 
                                 <Button Text="Reject"
                                         Command="{Binding Source={RelativeSource AncestorType={x:Type viewmodels:RentalRequestsViewModel}}, Path=RejectCommand}"
-                                        CommandParameter="{Binding ApiRentalId}"
+                                        CommandParameter="{Binding .}"
                                         BackgroundColor="#dc3545"
                                         TextColor="White"
                                         CornerRadius="8" />
@@ -90,6 +88,6 @@
 
         </CollectionView>
 
-    </VerticalStackLayout>
+    </Grid>
 
 </ContentPage>

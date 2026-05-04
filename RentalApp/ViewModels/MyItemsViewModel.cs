@@ -1,42 +1,37 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
+using RentalApp.Database.Models;
 using RentalApp.Models;
+using RentalApp.Repositories;
 using RentalApp.Services;
 using System.Collections.ObjectModel;
 
 namespace RentalApp.ViewModels;
 
-public partial class MyItemsViewModel : ObservableObject
+public partial class MyItemsViewModel : BaseViewModel
 {
-    private readonly IApiService _api;
-    private readonly IRentalService _rentalService;
+    private readonly IItemRepository _items;
+    private readonly IRentalRepository _rentals;
     private readonly IAuthenticationService _auth;
-    private readonly DatabaseService _database;
 
     [ObservableProperty]
-    private ObservableCollection<LocalItem> availableItems = new();
+    private ObservableCollection<Item> availableItems = new();
 
     [ObservableProperty]
     private ObservableCollection<MyItemRentalDisplay> rentedOutItems = new();
 
-    [ObservableProperty]
-    private bool isBusy;
-
     public MyItemsViewModel(
-        IApiService api,
-        IRentalService rentalService,
-        IAuthenticationService auth,
-        DatabaseService database)
+        IItemRepository items,
+        IRentalRepository rentals,
+        IAuthenticationService auth)
     {
-        _api = api;
-        _rentalService = rentalService;
+        _items = items;
+        _rentals = rentals;
         _auth = auth;
-        _database = database;
+
+        Title = "My Items";
     }
 
-    // ---------------------------------------------------------
-    // LOAD ITEMS + RENTALS
-    // ---------------------------------------------------------
     [RelayCommand]
     public async Task LoadItemsAsync()
     {
@@ -47,103 +42,49 @@ public partial class MyItemsViewModel : ObservableObject
         {
             IsBusy = true;
 
-            int userId = _auth.CurrentUser!.Id;
+            var user = _auth.CurrentUser;
+            if (user == null)
+                return;
 
-            // 1) SYNC ITEMS FROM API → SQLITE
-            var apiItems = await _api.GetItemsAsync();
-            var myApiItems = apiItems.Where(i => i.CreatedBy == userId).ToList();
+            int userId = user.Id;
 
-            foreach (var item in myApiItems)
-            {
-                var local = new LocalItem
-                {
-                    ApiItemId = item.Id,
-                    CreatedBy = item.CreatedBy,
-                    Title = item.Title,
-                    Description = item.Description,
-                    ImageUrl = item.ImageUrl,
-                    CategoryId = item.CategoryId,
-                    Category = item.Category,
-                    DailyRate = item.DailyRate,
-                    IsAvailable = item.IsAvailable,
-                    OwnerName = item.OwnerName,
-                    OwnerRating = item.OwnerRating ?? 0,
-                    AverageRating = item.AverageRating ?? 0,
-                    CreatedAt = item.CreatedAt,
-                    LastSynced = DateTime.UtcNow
-                };
+            var allItems = await _items.GetAllAsync();
+            var myItems = allItems.Where(i => i.OwnerId == userId).ToList();
 
-                await _database.SaveItemAsync(local);
-            }
+            var incomingRentals = await _rentals.GetOwnerIncomingAsync(userId);
 
-            var localItems = await _database.GetAllItemsAsync();
-            var myItems = localItems.Where(i => i.CreatedBy == userId).ToList();
-
-            // 2) SYNC RENTALS FOR YOUR ITEMS (API → LocalRental)
-            var apiIncoming = await _rentalService.GetIncomingRentalsAsync();
-
-            var myApiRentals = apiIncoming
-                .Where(r => myItems.Any(i => i.ApiItemId == r.ItemId))
-                .ToList();
-
-            foreach (var rental in myApiRentals)
-            {
-                var localRental = new LocalRental
-                {
-                    ApiRentalId = rental.Id,
-                    ApiItemId = rental.ItemId,
-                    BorrowerId = rental.BorrowerId,
-                    RequestedBy = rental.BorrowerId,
-                    Status = rental.Status,
-                    StartDate = rental.StartDate,
-                    EndDate = rental.EndDate,
-                    LastSynced = DateTime.UtcNow
-                };
-
-                await _database.SaveRentalAsync(localRental);
-            }
-
-            var localRentals = await _database.GetAllRentalsAsync();
-
-            // 3) BUILD UI LISTS
             AvailableItems.Clear();
             RentedOutItems.Clear();
+            Console.WriteLine($"🔍 MyItems: Found {myItems.Count} items for owner {userId}");
 
-           foreach (var item in myItems)
-{
-            var rental = myApiRentals
-                .Where(r => r.ItemId == item.ApiItemId)
-                .OrderByDescending(r => r.StartDate)
-                .FirstOrDefault();
-
-            // If no rental OR rental is completed → item is available
-            if (rental == null || rental.Status == "Completed")
+            foreach (var item in myItems)
             {
-                AvailableItems.Add(item);
-                continue;
+                var rental = incomingRentals
+                    .Where(r => r.ItemId == item.Id)
+                    .OrderByDescending(r => r.StartDate)
+                    .FirstOrDefault();
+
+                if (rental == null)
+                {
+                    AvailableItems.Add(item);
+                    continue;
+                }
+
+                string status = rental.Status?.Trim() ?? "";
+
+                if (status is "approved" or "out for rent" or "returned")
+                {
+                    RentedOutItems.Add(new MyItemRentalDisplay
+                    {
+                        Item = item,
+                        Rental = rental
+                    });
+                }
+                else
+                {
+                    AvailableItems.Add(item);
+                }
             }
-
-            // If rental is requested → still available
-            if (rental.Status == "Requested")
-            {
-                AvailableItems.Add(item);
-                continue;
-            }
-
-            // Otherwise → rented out
-            var display = new MyItemRentalDisplay
-            {
-                Item = item,
-                Rental = rental
-            };
-
-            RentedOutItems.Add(display);
-        }
-
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[ERROR] LoadItemsAsync failed: {ex.Message}");
         }
         finally
         {
@@ -151,25 +92,26 @@ public partial class MyItemsViewModel : ObservableObject
         }
     }
 
-    // ---------------------------------------------------------
-    // NAVIGATION
-    // ---------------------------------------------------------
     [RelayCommand]
     public async Task OpenRentalDetailsAsync(MyItemRentalDisplay display)
     {
-        // Convert API Rental → LocalRental before navigation
-        var localRental = await _database.GetRentalByApiIdAsync(display.Rental.Id);
+        if (display == null)
+            return;
 
         await Shell.Current.GoToAsync("rentaldetails", new Dictionary<string, object>
         {
-            { "Rental", localRental },
+            { "Rental", display.Rental },
             { "Item", display.Item }
         });
     }
 
     [RelayCommand]
-    public async Task OpenRentalRequestsAsync()
+    public async Task ViewRentalRequestsAsync(Item item)
     {
-        await Shell.Current.GoToAsync("rentalrequests");
+        if (item == null)
+            return;
+
+        //  Pass ItemId, not the whole Item
+        await Shell.Current.GoToAsync($"rentalrequests?ItemId={item.Id}");
     }
 }

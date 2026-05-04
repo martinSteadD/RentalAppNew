@@ -8,7 +8,6 @@ namespace RentalApp.ViewModels;
 public partial class RegisterViewModel : BaseViewModel
 {
     private readonly IAuthenticationService _authService;
-    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private string firstName = string.Empty;
@@ -28,15 +27,9 @@ public partial class RegisterViewModel : BaseViewModel
     [ObservableProperty]
     private bool acceptTerms;
 
-    public RegisterViewModel()
-    {
-        Title = "Register";
-    }
-
-    public RegisterViewModel(IAuthenticationService authService, INavigationService navigationService)
+    public RegisterViewModel(IAuthenticationService authService)
     {
         _authService = authService;
-        _navigationService = navigationService;
         Title = "Register";
     }
 
@@ -54,16 +47,22 @@ public partial class RegisterViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var success = await _authService.RegisterAsync(FirstName, LastName, Email, Password);
+            var success = await _authService.RegisterAsync(
+                FirstName,
+                LastName,
+                Email,
+                Password
+            );
 
             if (success)
             {
                 await Shell.Current.DisplayAlert(
                     "Success",
                     "Registration successful! Please login.",
-                    "OK");
+                    "OK"
+                );
 
-                await _navigationService.NavigateBackAsync();
+                await Shell.Current.GoToAsync("..");
             }
             else
             {
@@ -83,7 +82,7 @@ public partial class RegisterViewModel : BaseViewModel
     [RelayCommand]
     private async Task NavigateBackToLoginAsync()
     {
-        await _navigationService.NavigateBackAsync();
+        await Shell.Current.GoToAsync("..");
     }
 
     private bool ValidateForm()

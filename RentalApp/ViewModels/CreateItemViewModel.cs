@@ -2,17 +2,15 @@ using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RentalApp.Database.Models;
 using RentalApp.Services;
+using RentalApp.Repositories;
 using System.Collections.ObjectModel;
-using RentalApp.Models; // <-- Needed for LocalItem
 
 namespace RentalApp.ViewModels;
 
 public partial class CreateItemViewModel : BaseViewModel
 {
-    private readonly IApiService _apiService;
+    private readonly IItemRepository _items;
     private readonly IAuthenticationService _authService;
-    private readonly INavigationService _navigationService;
-    private readonly DatabaseService _databaseService;   // <-- NEW
     private readonly ILocationService _locationService;
 
     [ObservableProperty]
@@ -30,17 +28,12 @@ public partial class CreateItemViewModel : BaseViewModel
     private Category? selectedCategory;
 
     public CreateItemViewModel(
-        IApiService apiService,
+        IItemRepository items,
         IAuthenticationService authService,
-        INavigationService navigationService,
-        DatabaseService databaseService,
-        ILocationService locationService) 
-    
+        ILocationService locationService)
     {
-        _apiService = apiService;
+        _items = items;
         _authService = authService;
-        _navigationService = navigationService;
-        _databaseService = databaseService;   
         _locationService = locationService;
 
         Title = "Create Item";
@@ -52,7 +45,7 @@ public partial class CreateItemViewModel : BaseViewModel
     {
         try
         {
-            var list = await _apiService.GetCategoriesAsync();
+            var list = await _items.GetCategoriesAsync();
 
             Categories.Clear();
             foreach (var c in list)
@@ -86,42 +79,28 @@ public partial class CreateItemViewModel : BaseViewModel
 
             var (lat, lng) = await _locationService.GetCurrentLocationAsync();
 
-            var item = new CreateItemRequest
+            var newItem = new Item
             {
                 Title = TitleText,
                 Description = Description,
                 DailyRate = decimal.Parse(DailyRate),
                 CategoryId = SelectedCategory.Id,
+                Category = SelectedCategory.Name,
                 Latitude = lat,
-                Longitude = lng
+                Longitude = lng,
+                OwnerId = _authService.CurrentUser.Id
             };
 
-            var result = await _apiService.CreateItemAsync(item);
+            var created = await _items.CreateAsync(newItem);
 
-            if (result == null)
+            if (created == null)
             {
                 SetError("Failed to create item.");
                 return;
             }
 
-          
-            // SAVE TO SQLITE (NEW)
-
-            var localItem = new LocalItem
-            {
-                ApiItemId = result.Id,
-                Title = TitleText,
-                Description = Description,
-                Category = SelectedCategory.Name,
-                ImageUrl = null, // Can update this later if I add images
-                CreatedBy = _authService.CurrentUser!.Id,
-                LastSynced = DateTime.UtcNow
-            };
-
-            await _databaseService.SaveItemAsync(localItem);
-
             await Shell.Current.DisplayAlertAsync("Success", "Item created successfully!", "OK");
-            await _navigationService.NavigateBackAsync();
+            await Shell.Current.GoToAsync("..");
         }
         catch (Exception ex)
         {

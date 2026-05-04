@@ -28,18 +28,20 @@
                    FontAttributes="Bold" />
             <Label Text="{Binding Rental.LastSynced, StringFormat='{0:dd MMM yyyy HH:mm}'}" />
 
-            <!-- Buttons -->
+              <!-- OWNER: Mark Out For Rent -->
             <Button Text="Mark Out For Rent"
                     Command="{Binding MarkOutForRentCommand}"
-                    IsVisible="{Binding IsApproved}" />
+                    IsVisible="{Binding ShowMarkOutForRent}" />
 
+            <!-- BORROWER: Mark Returned -->
             <Button Text="Mark Returned"
                     Command="{Binding MarkReturnedCommand}"
-                    IsVisible="{Binding IsOutForRent}" />
+                    IsVisible="{Binding ShowMarkReturned}" />
 
+            <!-- OWNER: Mark Completed -->
             <Button Text="Mark Completed"
                     Command="{Binding MarkCompletedCommand}"
-                    IsVisible="{Binding IsReturned}" />
+                    IsVisible="{Binding ShowCompleted}" />
 
         </VerticalStackLayout>
     </ScrollView>

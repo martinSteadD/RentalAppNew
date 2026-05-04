@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8" ?>
 <ContentPage
     xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
     xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
@@ -6,59 +5,81 @@
     x:Class="RentalApp.Views.NearbyItemsPage"
     Title="Nearby Items">
 
-    <RefreshView Command="{Binding RefreshAsync}" IsRefreshing="{Binding IsBusy}">
-        <CollectionView ItemsSource="{Binding Items}">
-            <CollectionView.ItemTemplate>
-                <DataTemplate>
-                    <Border
-                        Margin="10"
-                        Padding="10"
-                        Stroke="#dddddd"
-                        StrokeThickness="1"
-                        StrokeShape="RoundRectangle 8">
+    <VerticalStackLayout Padding="10" Spacing="10">
 
-                        <Border.Shadow>
-                            <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
-                        </Border.Shadow>
+        <!-- Radius Input + Search Button -->
+        <HorizontalStackLayout Spacing="10">
+            <Entry 
+                Placeholder="Enter radius (km)"
+                Keyboard="Numeric"
+                Text="{Binding Radius}"
+                BackgroundColor="#f2f2f2"
+                HeightRequest="45"
+                WidthRequest="150" />
 
-                        <VerticalStackLayout>
+            <Button 
+                Text="Search"
+                Command="{Binding LoadNearbyItemsCommand}"
+                HeightRequest="45"
+                BackgroundColor="#0078D4"
+                TextColor="White" />
+        </HorizontalStackLayout>
 
-                            <Image
-                                Source="{Binding ImageUrl}"
-                                HeightRequest="150"
-                                Aspect="AspectFill" />
+        <RefreshView Command="{Binding RefreshAsync}" IsRefreshing="{Binding IsBusy}">
+            <CollectionView ItemsSource="{Binding Items}">
+                <CollectionView.ItemTemplate>
+                    <DataTemplate>
+                        <Border
+                            Margin="10"
+                            Padding="10"
+                            Stroke="#dddddd"
+                            StrokeThickness="1"
+                            StrokeShape="RoundRectangle 8">
 
-                            <Label
-                                Text="{Binding Title}"
-                                FontAttributes="Bold"
-                                FontSize="18" />
+                            <Border.Shadow>
+                                <Shadow Brush="#00000022" Offset="0,3" Radius="8" />
+                            </Border.Shadow>
 
-                            <Label
-                                Text="{Binding Category}"
-                                FontSize="14"
-                                TextColor="Gray" />
+                            <VerticalStackLayout>
 
-                            <Label
-                                Text="{Binding DailyRate, StringFormat='£{0:F2} per day'}"
-                                FontSize="14" />
+                                <Image
+                                    Source="{Binding ImageUrl}"
+                                    HeightRequest="150"
+                                    Aspect="AspectFill" />
 
-                            <Label
-                                Text="{Binding OwnerName, StringFormat='Owner: {0}'}"
-                                FontSize="13"
-                                TextColor="Gray" />
+                                <Label
+                                    Text="{Binding Title}"
+                                    FontAttributes="Bold"
+                                    FontSize="18" />
 
-                            <Label
-                                Text="{Binding AverageRating, StringFormat='Rating: {0:F1} ★'}"
-                                FontSize="13"
-                                TextColor="DarkGoldenrod" />
+                                <Label
+                                    Text="{Binding Category}"
+                                    FontSize="14"
+                                    TextColor="Gray" />
 
-                        </VerticalStackLayout>
+                                <Label
+                                    Text="{Binding DailyRate, StringFormat='£{0:F2} per day'}"
+                                    FontSize="14" />
 
-                    </Border>
+                                <Label
+                                    Text="{Binding OwnerName, StringFormat='Owner: {0}'}"
+                                    FontSize="13"
+                                    TextColor="Gray" />
 
-                </DataTemplate>
-            </CollectionView.ItemTemplate>
-        </CollectionView>
-    </RefreshView>
+                                <Label
+                                    Text="{Binding AverageRating, StringFormat='Rating: {0:F1} ★'}"
+                                    FontSize="13"
+                                    TextColor="DarkGoldenrod" />
+
+                            </VerticalStackLayout>
+
+                        </Border>
+
+                    </DataTemplate>
+                </CollectionView.ItemTemplate>
+            </CollectionView>
+        </RefreshView>
+
+    </VerticalStackLayout>
 
 </ContentPage>

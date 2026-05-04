@@ -1,6 +1,8 @@
+using System.Diagnostics;
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
 using RentalApp.Database.Models;
+using RentalApp.Repositories;
 using RentalApp.Services;
 using System.Collections.ObjectModel;
 
@@ -9,40 +11,52 @@ namespace RentalApp.ViewModels;
 [QueryProperty(nameof(Item), "Item")]
 public partial class ItemDetailsViewModel : BaseViewModel
 {
-    private readonly IRentalService _rentalService;
-    private readonly INavigationService _navigationService;
-    private readonly IReviewService _reviewService;
+    private readonly IRentalRepository _rentals;
+    private readonly IReviewService _reviews;
+    private readonly IAuthenticationService _auth;
 
     [ObservableProperty]
     private Item? item;
 
+    [ObservableProperty]
+    private bool isOwner;
+
     public ObservableCollection<Review> Reviews { get; } = new();
 
-    // ⭐ New backing property for API-provided average rating
     [ObservableProperty]
     private double averageRating;
 
     public string AvailabilityText => "Available";
-
     public Color AvailabilityColor => Colors.Green;
 
     public ItemDetailsViewModel(
-        IRentalService rentalService,
-        INavigationService navigationService,
-        IReviewService reviewService)
+        IRentalRepository rentals,
+        IReviewService reviews,
+        IAuthenticationService auth)
     {
-        _rentalService = rentalService;
-        _navigationService = navigationService;
-        _reviewService = reviewService;
+        _rentals = rentals;
+        _reviews = reviews;
+        _auth = auth;
 
         Title = "Item Details";
     }
 
-    // Called by the page when navigated to
+    partial void OnItemChanged(Item? value)
+    {
+        if (value == null)
+            return;
+
+        var user = _auth.CurrentUser;
+        IsOwner = user != null && value.OwnerId == user.Id;
+    }
+
     public async Task LoadAsync()
     {
         if (Item == null)
             return;
+
+        var user = _auth.CurrentUser;
+        IsOwner = user != null && Item.OwnerId == user.Id;
 
         await LoadReviewsAsync();
     }
@@ -51,27 +65,28 @@ public partial class ItemDetailsViewModel : BaseViewModel
     {
         try
         {
-            // Get the full wrapper response (reviews + averageRating + pagination)
-            var response = await _reviewService.GetReviewsForItemAsync(Item.Id);
+            ClearError();
+
+            if (Item == null)
+                return;
+
+            var response = await _reviews.GetReviewsForItemAsync(Item.Id);
 
             if (response == null)
             {
-                SetError("Failed to load reviews: response was null");
+                SetError("Failed to load reviews.");
                 return;
             }
 
-            // Sort newest first
             var sorted = response.Reviews
                 .OrderByDescending(r => r.CreatedAt)
                 .ToList();
 
-            // Update the ObservableCollection
             Reviews.Clear();
             foreach (var r in sorted)
                 Reviews.Add(r);
 
-            // Update the AverageRating property from the API
-            AverageRating = response.AverageRating;
+            AverageRating = response.AverageRating ?? 0;
         }
         catch (Exception ex)
         {
@@ -96,23 +111,14 @@ public partial class ItemDetailsViewModel : BaseViewModel
             IsBusy = true;
             ClearError();
 
-            var result = await _rentalService.RequestRentalAsync(Item.Id);
-
-            if (result != null)
+            await Shell.Current.GoToAsync("requestrental", true, new Dictionary<string, object>
             {
-                await Shell.Current.DisplayAlertAsync(
-                    "Success",
-                    "Rental request submitted!",
-                    "OK");
-            }
-            else
-            {
-                SetError("Failed to request rental.");
-            }
+                { "Item", Item }
+            });
         }
         catch (Exception ex)
         {
-            SetError($"Rental request failed: {ex.Message}");
+            SetError($"Navigation failed: {ex.Message}");
         }
         finally
         {
@@ -121,8 +127,56 @@ public partial class ItemDetailsViewModel : BaseViewModel
     }
 
     [RelayCommand]
+    private async Task EditItemAsync()
+    {
+        if (Item == null)
+            return;
+
+        await Shell.Current.GoToAsync("edititem", true, new Dictionary<string, object>
+        {
+            { "Item", Item }
+        });
+    }
+
+    [RelayCommand]
     private async Task NavigateBackAsync()
     {
-        await _navigationService.NavigateBackAsync();
+        await Shell.Current.GoToAsync("..");
     }
+
+    [RelayCommand]
+    public async Task SubmitRentalRequestAsync()
+    {
+        try
+        {
+            if (Item == null)
+            {
+                await Shell.Current.DisplayAlert("Error", "Item not found.", "OK");
+                return;
+            }
+
+            var request = new RentalRequest
+            {
+                itemId = Item.Id,
+                startDate = DateTime.Today.ToString("yyyy-MM-dd"),
+                endDate = DateTime.Today.AddDays(1).ToString("yyyy-MM-dd")
+            };
+
+            var result = await _rentals.RequestRentalAsync(request);
+
+            if (result != null)
+            {
+                await Shell.Current.DisplayAlert("Success", "Rental request submitted.", "OK");
+            }
+            else
+            {
+                await Shell.Current.DisplayAlert("Error", "Failed to submit rental request.", "OK");
+            }
+        }
+        catch (Exception ex)
+        {
+            await Shell.Current.DisplayAlert("Error", $"Something went wrong: {ex.Message}", "OK");
+        }
+    }
+
 }

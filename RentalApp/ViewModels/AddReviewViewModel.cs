@@ -9,7 +9,6 @@ namespace RentalApp.ViewModels;
 public partial class AddReviewViewModel : BaseViewModel
 {
     private readonly IReviewService _reviewService;
-    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private int rentalId;
@@ -22,14 +21,9 @@ public partial class AddReviewViewModel : BaseViewModel
 
     public List<int> Ratings { get; } = new() { 1, 2, 3, 4, 5 };
 
-
-    public AddReviewViewModel(
-        IReviewService reviewService,
-        INavigationService navigationService)
+    public AddReviewViewModel(IReviewService reviewService)
     {
         _reviewService = reviewService;
-        _navigationService = navigationService;
-
         Title = "Add Review";
     }
 
@@ -66,7 +60,7 @@ public partial class AddReviewViewModel : BaseViewModel
                     "Your review has been submitted!",
                     "OK");
 
-                await _navigationService.NavigateBackAsync();
+                await Shell.Current.GoToAsync(".."); // navigate back
             }
             else
             {
@@ -86,7 +80,6 @@ public partial class AddReviewViewModel : BaseViewModel
     [RelayCommand]
     private async Task CancelAsync()
     {
-        await _navigationService.NavigateBackAsync();
+        await Shell.Current.GoToAsync("..");
     }
 }
-

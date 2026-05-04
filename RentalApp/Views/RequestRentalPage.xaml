@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage
+    xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+    x:Class="RentalApp.Views.RequestRentalPage"
+    Title="Request Rental">
+
+    <ScrollView>
+        <VerticalStackLayout Padding="20" Spacing="20">
+
+            <!-- Item Title -->
+            <Label 
+                Text="{Binding Item.Title}"
+                FontSize="26"
+                FontAttributes="Bold"
+                TextColor="#222" />
+
+            <!-- Daily Rate -->
+            <Label 
+                Text="{Binding Item.DailyRate, StringFormat='Daily Rate: £{0:F2}'}"
+                FontSize="18"
+                TextColor="#444" />
+
+            <!-- Start Date -->
+            <Label 
+                Text="Start Date"
+                FontSize="18"
+                FontAttributes="Bold"
+                Margin="0,10,0,0" />
+
+            <DatePicker 
+                Date="{Binding StartDate}" />
+
+            <!-- End Date -->
+            <Label 
+                Text="End Date"
+                FontSize="18"
+                FontAttributes="Bold"
+                Margin="0,10,0,0" />
+
+            <DatePicker 
+                Date="{Binding EndDate}" />
+
+            <!-- Number of Days -->
+            <Label 
+                Text="{Binding NumberOfDays, StringFormat='Number of days: {0}'}"
+                FontSize="18"
+                TextColor="#333"
+                Margin="0,10,0,0" />
+
+            <!-- Total Cost -->
+            <Label 
+                Text="{Binding TotalCost, StringFormat='Total Cost: £{0:F2}'}"
+                FontSize="22"
+                FontAttributes="Bold"
+                TextColor="#007aff" />
+
+            <!-- Submit Button -->
+            <Button 
+                Text="Submit Rental Request"
+                Command="{Binding SubmitRentalCommand}"
+                BackgroundColor="#007aff"
+                TextColor="White"
+                CornerRadius="8"
+                HeightRequest="50"
+                Margin="0,20,0,0" />
+
+            <!-- Loading Indicator -->
+            <ActivityIndicator 
+                IsRunning="{Binding IsBusy}"
+                IsVisible="{Binding IsBusy}"
+                Color="#007aff" />
+
+        </VerticalStackLayout>
+    </ScrollView>
+
+</ContentPage>

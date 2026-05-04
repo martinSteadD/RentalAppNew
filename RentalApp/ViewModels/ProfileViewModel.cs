@@ -8,7 +8,6 @@ namespace RentalApp.ViewModels;
 public partial class ProfileViewModel : BaseViewModel
 {
     private readonly IAuthenticationService _authService;
-    private readonly INavigationService _navigationService;
 
     [ObservableProperty]
     private ApiUser? currentUser;
@@ -25,10 +24,9 @@ public partial class ProfileViewModel : BaseViewModel
     [ObservableProperty]
     private bool isChangingPassword;
 
-    public ProfileViewModel(IAuthenticationService authService, INavigationService navigationService)
+    public ProfileViewModel(IAuthenticationService authService)
     {
         _authService = authService;
-        _navigationService = navigationService;
         Title = "Profile";
 
         LoadUserData();
@@ -40,7 +38,7 @@ public partial class ProfileViewModel : BaseViewModel
     }
 
     // ---------------------------------------------------------
-    // COMPUTED PROPERTIES FOR PROFILE PAGE
+    // COMPUTED PROPERTIES
     // ---------------------------------------------------------
 
     public string FullName =>
@@ -57,7 +55,6 @@ public partial class ProfileViewModel : BaseViewModel
         CurrentUser?.AverageRating == null
             ? "Rating: N/A"
             : $"Rating: {CurrentUser.AverageRating:F1} ★";
-
 
     public string ItemsListedFormatted =>
         CurrentUser == null
@@ -129,7 +126,7 @@ public partial class ProfileViewModel : BaseViewModel
     [RelayCommand]
     private async Task NavigateBackAsync()
     {
-        await _navigationService.NavigateBackAsync();
+        await Shell.Current.GoToAsync("..");
     }
 
     private bool ValidatePasswordChange()

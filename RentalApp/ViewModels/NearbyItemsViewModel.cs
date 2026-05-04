@@ -14,6 +14,10 @@ namespace RentalApp.ViewModels
         [ObservableProperty]
         private ObservableCollection<Item> items = new();
 
+        // User‑editable radius
+        [ObservableProperty]
+        private int radius = 50;
+
         public NearbyItemsViewModel(IApiService apiService, ILocationService locationService)
         {
             _apiService = apiService;
@@ -31,21 +35,18 @@ namespace RentalApp.ViewModels
             try
             {
                 IsBusy = true;
+                ClearError();
 
-                // 1. Get device location (tuple deconstruction)
+                // 1. Get device location
                 var (latitude, longitude) = await _locationService.GetCurrentLocationAsync();
 
-                Console.WriteLine($"User location: {latitude}, {longitude}");
-
-                // 2. Call API using the tuple values
-                var results = await _apiService.GetNearbyItemsAsync(latitude, longitude, 50);
+                // 2. Call API using the user‑selected radius
+                var results = await _apiService.GetNearbyItemsAsync(latitude, longitude, Radius);
 
                 // 3. Update UI
                 Items.Clear();
 
-                Console.WriteLine($"Items returned: {results.Count()}");
-
-                foreach (var item in results)
+                foreach (var item in results.Take(30))
                     Items.Add(item);
             }
             catch (Exception ex)

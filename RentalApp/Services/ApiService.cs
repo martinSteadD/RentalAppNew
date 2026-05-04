@@ -79,11 +79,20 @@ namespace RentalApp.Services
             ApplyAuthHeader(request);
 
             var response = await _httpClient.SendAsync(request);
-            response.EnsureSuccessStatusCode();
+
+            if (!response.IsSuccessStatusCode)
+            {
+                var errorBody = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"[POST ERROR] URL: {endpoint}");
+                Console.WriteLine($"[POST ERROR] Status: {response.StatusCode}");
+                Console.WriteLine($"[POST ERROR] Body: {errorBody}");
+                return default;
+            }
 
             var json = await response.Content.ReadAsStringAsync();
             return JsonSerializer.Deserialize<TResponse>(json, _jsonOptions);
         }
+
 
         public async Task<bool> PostAsync<TRequest>(string endpoint, TRequest data)
         {
@@ -237,9 +246,45 @@ namespace RentalApp.Services
 
         public async Task<bool> UpdateItemAsync(int itemId, UpdateItemRequest request)
         {
-            var response = await _httpClient.PatchAsJsonAsync($"items/{itemId}", request);
+            var json = JsonSerializer.Serialize(request, _jsonOptions);
+
+            var httpRequest = new HttpRequestMessage(HttpMethod.Put, $"items/{itemId}")
+            {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
+            };
+
+            ApplyAuthHeader(httpRequest);
+
+            var response = await _httpClient.SendAsync(httpRequest);
+
+            var body = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"[PUT] Status: {response.StatusCode}");
+            Console.WriteLine($"[PUT] Body: {body}");
+
             return response.IsSuccessStatusCode;
         }
+
+
+        public async Task<Item> UpdateAsync(Item item)
+        {
+            var request = new UpdateItemRequest
+            {
+                Title = item.Title,
+                Description = item.Description,
+                DailyRate = item.DailyRate,
+                IsAvailable = item.IsAvailable
+            };
+
+
+
+            var success = await UpdateItemAsync(item.Id, request);
+
+            if (!success)
+                throw new Exception("Failed to update item");
+
+            return item;
+        }
+
 
 
         public async Task<List<Item>> GetAllItemsAsync()
@@ -269,7 +314,8 @@ namespace RentalApp.Services
 
         public async Task<List<Item>> GetNearbyItemsAsync(double latitude, double longitude, int radius = 50)
         {
-            var url = $"items/nearby?lat={latitude}&lon={longitude}&radius={radius}";
+            // FIXED: correct parameter names
+            var url = $"items/nearby?latitude={latitude}&longitude={longitude}&radius={radius}";
 
             var request = new HttpRequestMessage(HttpMethod.Get, url);
             ApplyAuthHeader(request);
@@ -285,6 +331,23 @@ namespace RentalApp.Services
 
             return responseObj?.Items ?? new List<Item>();
         }
+
+        public async Task<List<Item>> GetItemsByUserIdAsync(int userId)
+        {
+            // Fetch ALL items from the API
+            var allItems = await GetItemsAsync();
+
+            if (allItems == null)
+                return new List<Item>();
+
+            // Filter by ownerId (the field your API actually uses)
+            return allItems
+                .Where(item => item.OwnerId == userId)
+                .ToList();
+        }
+
+
+
 
     }
 }
